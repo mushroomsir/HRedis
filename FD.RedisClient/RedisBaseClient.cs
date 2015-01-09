@@ -8,7 +8,7 @@ namespace FD.RedisClient
         private Configuration configuration;
         private Socket socket;
 
-        private static byte[] ReceiveBuffer = new byte[100000];
+        private  byte[] ReceiveBuffer = new byte[100000];
 
         public RedisBaseClient(Configuration config)
         {
