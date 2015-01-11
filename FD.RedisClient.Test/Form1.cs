@@ -31,5 +31,17 @@ namespace FD.RedisClient.Test
             richTextBox1.Text = result.ToString();
         }
 
+        private void button4_Click(object sender, EventArgs e)
+        {
+            RedisBaseClient redis = new RedisBaseClient();
+            richTextBox1.Text = redis.SetByPipeline("button4_Click", "test", 1000);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            RedisBaseClient redis = new RedisBaseClient();
+            richTextBox1.Text = redis.Set("button5_Click", "test");
+        }
+
     }
 }
