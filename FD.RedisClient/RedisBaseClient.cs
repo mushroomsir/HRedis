@@ -9,7 +9,7 @@ namespace FD.RedisClient
         private Configuration configuration;
         private Socket socket;
 
-        private byte[] ReceiveBuffer = new byte[100000];
+        private byte[] ReceiveBuffer = new byte[16*1024];
 
         public RedisBaseClient(Configuration config)
         {
@@ -44,9 +44,16 @@ namespace FD.RedisClient
             Close();
         }
 
+        #region Pipeline
+
         public void CreatePipeline()
         {
             SendCommand(RedisCommand.MULTI, new string[] {}, true);
+        }
+
+        public string QueueCommand(RedisCommand command, params string[] args)
+        {
+            return SendCommand(command, args, true);
         }
 
         public string FlushPipeline()
@@ -56,17 +63,15 @@ namespace FD.RedisClient
             return result;
         }
 
+        #endregion
+
         public string SendCommand(RedisCommand command, params string[] args)
         {
-            return SendCommand(command, args,false);
+            return SendCommand(command, args, false);
         }
 
-        public string QueueCommand(RedisCommand command, params string[] args)
-        {
-            return SendCommand(command, args, true);
-        }
 
-        public string SendCommand(RedisCommand command, string[] args, bool isPipeline=false)
+        public string SendCommand(RedisCommand command, string[] args, bool isPipeline)
         {
             //请求头部格式， *<number of arguments>\r\n
             const string headstr = "*{0}\r\n";
@@ -88,7 +93,7 @@ namespace FD.RedisClient
             {
                 Connect();
                 socket.Send(c);
-                
+
                 socket.Receive(ReceiveBuffer);
                 if (!isPipeline)
                 {
@@ -116,27 +121,13 @@ namespace FD.RedisClient
             return data;
         }
 
-        public string Set(string key, string value)
-        {
-           return this.SendCommand(RedisCommand.SET, key, value);
-        }
-
-        public string SetByPipeline(string key, string value, int second)
-        {
-            this.CreatePipeline();
-            this.QueueCommand(RedisCommand.SET, key, value);
-            this.QueueCommand(RedisCommand.EXPIRE, key, second.ToString());
-            return this.FlushPipeline();
-        }
-
-
         /// <summary>
         /// 关闭client
         /// </summary>
         public void Close()
         {
             socket.Disconnect(false);
-            socket.Close();
+            //socket.Close();
         }
     }
 }

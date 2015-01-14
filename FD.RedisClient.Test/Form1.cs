@@ -33,14 +33,18 @@ namespace FD.RedisClient.Test
 
         private void button4_Click(object sender, EventArgs e)
         {
-            RedisBaseClient redis = new RedisBaseClient();
+            RedisClient redis = new RedisClient();
             richTextBox1.Text = redis.SetByPipeline("button4_Click", "test", 1000);
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            RedisBaseClient redis = new RedisBaseClient();
+            RedisClient redis = new RedisClient();
             richTextBox1.Text = redis.Set("button5_Click", "test");
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
         }
 
     }
