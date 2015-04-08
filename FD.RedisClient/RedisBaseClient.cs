@@ -1,133 +1,182 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
-namespace FD.RedisClient
+namespace HRedis
 {
-    public class RedisBaseClient
+    public class RedisBaseClient : IDisposable
     {
         private Configuration configuration;
         private Socket socket;
+        private NetworkStream Nstream;
 
-        private byte[] ReceiveBuffer = new byte[16*1024];
-
+    
+        public delegate void SubscribeEventHandler(object message);
         public RedisBaseClient(Configuration config)
         {
             configuration = config;
         }
 
-        public RedisBaseClient()
-            : this(new Configuration())
-        {
-        }
 
         private void Connect()
         {
             if (socket != null && socket.Connected)
                 return;
-
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            if (socket == null)
             {
-                NoDelay = configuration.NoDelaySocket
-            };
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+                {
+                    NoDelay = configuration.NoDelaySocket
+                };
+                if (configuration.SendTimeout > 0)
+                    socket.SendTimeout = configuration.SendTimeout;
 
-            if (configuration.SendTimeout > 0)
-                socket.SendTimeout = configuration.SendTimeout;
-
-            if (configuration.ReceiveTimeout > 0)
-                socket.ReceiveTimeout = configuration.ReceiveTimeout;
+                if (configuration.ReceiveTimeout > 0)
+                    socket.ReceiveTimeout = configuration.ReceiveTimeout;
+            }
 
             socket.Connect(configuration.Host, configuration.Port);
-            if (socket.Connected)
-                return;
-
-            Close();
         }
 
-        #region Pipeline
-
-        public void CreatePipeline()
+        public void Listen(SubscribeEventHandler func)
         {
-            SendCommand(RedisCommand.MULTI, new string[] {}, true);
+            do
+            {
+                func(ReadData());
+                Thread.Sleep(10);
+            } while (true);
         }
 
-        public string QueueCommand(RedisCommand command, params string[] args)
+        internal void SendN(RedisCommand command, params string[] args)
         {
-            return SendCommand(command, args, true);
+            Connect();
+            Nstream = new NetworkStream(socket);
+            WriteData(command, args);
+        }
+        internal object ReadReply()
+        {
+            return ReadData();
+        }
+        public object Send(RedisCommand command, params string[] args)
+        {
+            try
+            {
+                SendN(command, args);
+                return ReadReply();
+            }
+            catch(Exception ex)
+            {
+                throw new RedisException(ex.Message);
+            }
         }
 
-        public string FlushPipeline()
+        private void WriteData(RedisCommand command, string[] args)
         {
-            var result = SendCommand(RedisCommand.EXEC, new string[] {}, true);
-            Close();
-            return result;
-        }
-
-        #endregion
-
-        public string SendCommand(RedisCommand command, params string[] args)
-        {
-            return SendCommand(command, args, false);
-        }
-
-
-        public string SendCommand(RedisCommand command, string[] args, bool isPipeline)
-        {
-            //请求头部格式， *<number of arguments>\r\n
-            const string headstr = "*{0}\r\n";
-            //参数信息       $<number of bytes of argument N>\r\n<argument data>\r\n
-            const string bulkstr = "${0}\r\n{1}\r\n";
+            if (Nstream == null)
+                throw new Exception("No NetworkStream");
 
             var sb = new StringBuilder();
-            sb.AppendFormat(headstr, args.Length + 1);
+            sb.AppendFormat(MessageFormat.Head, args.Length + 1);
 
             var cmd = command.ToString();
-            sb.AppendFormat(bulkstr, cmd.Length, cmd);
+            sb.AppendFormat(MessageFormat.Argument, cmd.Length, cmd);
 
             foreach (var arg in args)
             {
-                sb.AppendFormat(bulkstr, arg.Length, arg);
+                sb.AppendFormat(MessageFormat.Argument, arg.Length, arg);
             }
-            byte[] c = Encoding.UTF8.GetBytes(sb.ToString());
-            try
-            {
-                Connect();
-                socket.Send(c);
+            byte[] content = Encoding.UTF8.GetBytes(sb.ToString());
 
-                socket.Receive(ReceiveBuffer);
-                if (!isPipeline)
+            Nstream.Write(content, 0, content.Length);
+        }
+
+        private object ReadData()
+        {
+            var b = (char)Nstream.ReadByte();
+            if (b == MessageFormat.CR)
+            {
+                Nstream.ReadByte();
+                b = (char)Nstream.ReadByte();
+            }
+           
+            switch ((RedisMessage) b)
+            {
+                case RedisMessage.Error:
+                    var errorMessage = ReadLine();
+                    throw new RedisException(errorMessage);
+                case RedisMessage.Bulk:
+                    var size = int.Parse(ReadLine());
+                    byte[] data = new byte[size];
+                    Nstream.Read(data, 0, size);
+                    return Encoding.UTF8.GetString(data);
+                case RedisMessage.Int:
+                    return ReadLine();
+                case RedisMessage.Status:
+                    return ReadLine();
+                case RedisMessage.MultiBulk:
+                    return ReadMultiBulk();
+                default:
+                    return ReadRawReply();
+            }
+        }
+        public string ReadRawReply()
+        {
+            byte[] data1 = new byte[10*1024];
+            Nstream.Read(data1, 0, data1.Length);
+            return Encoding.UTF8.GetString(data1);
+        }
+
+        public object[] ReadMultiBulk()
+        {
+            int count = int.Parse(ReadLine()); ;
+            if (count == -1)
+                return null;
+
+            object[] lines = new object[count];
+            for (int i = 0; i < count; i++)
+            {
+                lines[i] = ReadData();
+            }
+            return lines;
+        }
+        private string ReadLine()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool should_break = false;
+            while (true)
+            {
+                int c = Nstream.ReadByte();
+                if (c == MessageFormat.CR)
+                    should_break = true;
+                else if (c == MessageFormat.LF && should_break)
+                    break;
+                else
                 {
-                    Close();
+                    sb.Append((char) c);
+                    should_break = false;
                 }
-                return ReadData();
             }
-            catch (SocketException e)
+            return sb.ToString();
+        }
+
+        private void Close()
+        {
+            Send(RedisCommand.QUIT);
+
+            if (Nstream != null)
+                Nstream.Close();
+
+            if (socket != null)
             {
-                Close();
+                socket.Disconnect(false);
+                socket.Close();
             }
-            return null;
         }
 
-        private string ReadData()
+        public void Dispose()
         {
-            var data = Encoding.UTF8.GetString(ReceiveBuffer);
-            char c = data[0];
-            //错误消息检查。
-            if (c == '-') //异常处理。
-                throw new Exception(data);
-            //状态回复。
-            if (c == '+')
-                return data;
-            return data;
-        }
-
-        /// <summary>
-        /// 关闭client
-        /// </summary>
-        public void Close()
-        {
-            socket.Disconnect(false);
-            //socket.Close();
+            Close();
         }
     }
 }

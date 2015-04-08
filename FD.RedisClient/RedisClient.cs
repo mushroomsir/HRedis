@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FD.RedisClient
+namespace HRedis
 {
     public class RedisClient : RedisBaseClient
     {
@@ -12,23 +12,62 @@ namespace FD.RedisClient
 
         }
 
+        public event SubscribeEventHandler SubscriptionReceived;
+
+        public RedisClient(string ip,int port)
+            : this(new Configuration()
+            {
+                 Host=ip,
+                 Port = port,
+            })
+        {
+
+        }
         public RedisClient(Configuration configuration)
             : base(configuration)
         {
 
         }
 
-        public string Set(string key, string value)
+        public void Subscribe(string channelName)
         {
-            return base.SendCommand(RedisCommand.SET, key, value);
+            Send(RedisCommand.SUBSCRIBE);
+
+            if (SubscriptionReceived != null)
+            {
+                Listen(SubscriptionReceived);
+            }
         }
 
-        public string SetByPipeline(string key, string value, int second)
+        public object Set(string key, string value)
         {
-            base.CreatePipeline();
-            base.QueueCommand(RedisCommand.SET, key, value);
-            base.QueueCommand(RedisCommand.EXPIRE, key, second.ToString());
-            return base.FlushPipeline();
+            return Send(RedisCommand.SET, key, value);
         }
+        #region Pipeline
+
+        public void CreatePipeline()
+        {
+            Send(RedisCommand.MULTI);
+        }
+
+        public object QueueCommand(RedisCommand command, params string[] args)
+        {
+            return Send(command, args);
+        }
+
+        public object FlushPipeline()
+        {
+            var result = Send(RedisCommand.EXEC, new string[] { });
+            return result;
+        }
+      
+        public object SetByPipeline(string key, string value, int second)
+        {
+            CreatePipeline();
+            QueueCommand(RedisCommand.SET, key, value);
+            QueueCommand(RedisCommand.EXPIRE, key, second.ToString());
+            return FlushPipeline();
+        }
+        #endregion
     }
 }

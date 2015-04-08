@@ -1,6 +1,6 @@
 ﻿
 
-namespace FD.RedisClient
+namespace HRedis
 {
     public class Configuration
     {
@@ -17,7 +17,7 @@ namespace FD.RedisClient
 
         public Configuration()
         {
-            Host = "localhost";
+            Host = "127.0.0.1";
             Port = 6379;
             SendTimeout = -1;
             NoDelaySocket = false;

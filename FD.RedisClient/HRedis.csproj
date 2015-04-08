@@ -7,8 +7,8 @@
     <ProjectGuid>{F5184D11-D770-4B64-87BD-3AB1983F8C79}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FD.RedisClient</RootNamespace>
-    <AssemblyName>FD.RedisClient</AssemblyName>
+    <RootNamespace>HRedis</RootNamespace>
+    <AssemblyName>HRedis</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,10 +41,13 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedisSentinelClient.cs" />
+    <Compile Include="SubscribeReceivedEventArgs.cs" />
     <Compile Include="RedisBaseClient.cs" />
     <Compile Include="RedisClient.cs" />
     <Compile Include="RedisCommand.cs" />
-    <Compile Include="ClientPoolManager.cs" />
+    <Compile Include="RedisException.cs" />
+    <Compile Include="RedisProtocol.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
