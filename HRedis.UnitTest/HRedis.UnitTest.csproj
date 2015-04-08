@@ -58,7 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FD.RedisClient\HRedis.csproj">
+    <ProjectReference Include="..\HRedis\HRedis.csproj">
       <Project>{f5184d11-d770-4b64-87bd-3ab1983f8c79}</Project>
       <Name>HRedis</Name>
     </ProjectReference>
