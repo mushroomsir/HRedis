@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -23,59 +24,38 @@ namespace HRedis
         {
             if (socket != null && socket.Connected)
                 return;
-            if (socket == null)
+            if (socket == null || !socket.Connected)
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
                 {
                     NoDelay = configuration.NoDelaySocket
                 };
+
                 if (configuration.SendTimeout > 0)
                     socket.SendTimeout = configuration.SendTimeout;
 
                 if (configuration.ReceiveTimeout > 0)
                     socket.ReceiveTimeout = configuration.ReceiveTimeout;
             }
-
             socket.Connect(configuration.Host, configuration.Port);
-        }
-
-        public void Listen(SubscribeEventHandler func)
-        {
-            do
-            {
-                func(ReadData());
-                Thread.Sleep(10);
-            } while (true);
-        }
-
-        internal void SendN(RedisCommand command, params string[] args)
-        {
-            Connect();
             Nstream = new NetworkStream(socket);
-            WriteData(command, args);
         }
-        internal object ReadReply()
-        {
-            return ReadData();
-        }
+
+
         public object Send(RedisCommand command, params string[] args)
         {
-            try
-            {
-                SendN(command, args);
-                return ReadReply();
-            }
-            catch(Exception ex)
-            {
-                throw new RedisException(ex.Message);
-            }
+            SendN(command, args);
+            return ReadData();
         }
 
+        protected void SendN(RedisCommand command, params string[] args)
+        {
+            Connect();
+            
+            WriteData(command, args);
+        }
         private void WriteData(RedisCommand command, string[] args)
         {
-            if (Nstream == null)
-                throw new Exception("No NetworkStream");
-
             var sb = new StringBuilder();
             sb.AppendFormat(MessageFormat.Head, args.Length + 1);
 
@@ -93,41 +73,43 @@ namespace HRedis
 
         private object ReadData()
         {
-            var b = (char)Nstream.ReadByte();
-            if (b == MessageFormat.CR)
-            {
-                Nstream.ReadByte();
-                b = (char)Nstream.ReadByte();
-            }
+            var b = (char)ReadFirstByte();
            
-            switch ((RedisMessage) b)
+            if (b == MessageFormat.ReplyMultiBulk)
             {
-                case RedisMessage.Error:
-                    var errorMessage = ReadLine();
-                    throw new RedisException(errorMessage);
-                case RedisMessage.Bulk:
-                    var size = int.Parse(ReadLine());
-                    byte[] data = new byte[size];
-                    Nstream.Read(data, 0, size);
-                    return Encoding.UTF8.GetString(data);
-                case RedisMessage.Int:
-                    return ReadLine();
-                case RedisMessage.Status:
-                    return ReadLine();
-                case RedisMessage.MultiBulk:
-                    return ReadMultiBulk();
-                default:
-                    return ReadRawReply();
+               return ReadMultiBulk();
             }
+            if (b == MessageFormat.ReplyBulk)
+            {
+                var size = int.Parse(ReadLine());
+                if (size == -1)
+                    return null;
+                byte[] data = new byte[size];
+                Nstream.Read(data, 0, size);
+                return Encoding.UTF8.GetString(data);
+            }
+            if (b == MessageFormat.ReplyFigure || b == MessageFormat.ReplyStatus)
+            {
+                return ReadLine();
+            }
+            if ((b == MessageFormat.ReplyError))
+            {
+                var errorMessage = ReadLine();
+                throw new RedisException("redis message:"+errorMessage);
+            }
+            throw new RedisException("invalid message type");
         }
-        public string ReadRawReply()
+        int ReadFirstByte()
         {
-            byte[] data1 = new byte[10*1024];
-            Nstream.Read(data1, 0, data1.Length);
-            return Encoding.UTF8.GetString(data1);
+            int c;
+            while ((c = Nstream.ReadByte()) != -1)
+            {
+                if (c != MessageFormat.CR && c != MessageFormat.LF)
+                    break;
+            }
+            return c;
         }
-
-        public object[] ReadMultiBulk()
+        private object[] ReadMultiBulk()
         {
             int count = int.Parse(ReadLine()); ;
             if (count == -1)
@@ -142,34 +124,36 @@ namespace HRedis
         }
         private string ReadLine()
         {
-            StringBuilder sb = new StringBuilder();
-            bool should_break = false;
-            while (true)
+            var sb = new StringBuilder();
+            int c;
+            while ((c = Nstream.ReadByte()) != -1)
             {
-                int c = Nstream.ReadByte();
                 if (c == MessageFormat.CR)
-                    should_break = true;
-                else if (c == MessageFormat.LF && should_break)
+                    continue;
+                if (c == MessageFormat.LF)
                     break;
-                else
-                {
-                    sb.Append((char) c);
-                    should_break = false;
-                }
+                sb.Append((char)c);
             }
             return sb.ToString();
+        }
+        protected void Listen(SubscribeEventHandler func)
+        {
+            do
+            {
+                func(ReadData());
+                Thread.Sleep(10);
+            } while (true);
         }
 
         private void Close()
         {
-            Send(RedisCommand.QUIT);
-
+            SendN(RedisCommand.QUIT);
             if (Nstream != null)
                 Nstream.Close();
-
+         
             if (socket != null)
             {
-                socket.Disconnect(false);
+                socket.Shutdown(SocketShutdown.Send);
                 socket.Close();
             }
         }

@@ -12,37 +12,39 @@ namespace HRedis
         /// $number of bytes of argument N\r\nargument data\r\n
         /// </summary>
         public static readonly string Argument = "${0}\r\n{1}\r\n";
-
-        public static readonly char CR = '\r';
-
-        public static readonly char LF = '\n';
-    }
-
-    public enum RedisMessage
-    {
         /// <summary>
-        /// 错误消息
+        /// \r
         /// </summary>
-        Error = '-',
+        public static readonly char CR = '\r';
+        /// <summary>
+        /// \n
+        /// </summary>
+        public static readonly char LF = '\n';
+
+        /// <summary>
+        /// 错误消息 -
+        /// </summary>
+        public static readonly char ReplyError = '-';
 
         /// <summary>
         /// 状态消息 +
         /// </summary>
-        Status = '+',
+        public static readonly char ReplyStatus = '+';
 
         /// <summary>
         /// 大块消息 $
         /// </summary>
-        Bulk = '$',
+        public static readonly char ReplyBulk = '$';
 
         /// <summary>
         /// 多条大块消息 *
         /// </summary>
-        MultiBulk = '*',
+        public static readonly char ReplyMultiBulk = '*';
 
         /// <summary>
         /// 数字消息:
         /// </summary>
-        Int = ':',
+        public static readonly char ReplyFigure = ':';
+
     }
 }

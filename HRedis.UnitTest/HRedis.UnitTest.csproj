@@ -53,8 +53,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="PerformanceTests.cs" />
     <Compile Include="SentinelTests.cs" />
     <Compile Include="ServerTests.cs" />
+    <Compile Include="StringTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

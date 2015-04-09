@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace HRedis
 {
     public class RedisSentinelClient : RedisBaseClient
@@ -23,11 +19,9 @@ namespace HRedis
         {
 
         }
-
         public void Subscribe(string channelName)
         {
             Send(RedisCommand.SUBSCRIBE, channelName);
-
             if (SubscriptionReceived != null)
             {
                 Listen(SubscriptionReceived);
@@ -36,7 +30,6 @@ namespace HRedis
         public void PSubscribe(string channelName)
         {
             Send(RedisCommand.PSUBSCRIBE, channelName);
-
             if (SubscriptionReceived != null)
             {
                 Listen(SubscriptionReceived);

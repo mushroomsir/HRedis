@@ -41,8 +41,8 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedisClient.String.cs" />
     <Compile Include="RedisSentinelClient.cs" />
-    <Compile Include="SubscribeReceivedEventArgs.cs" />
     <Compile Include="RedisBaseClient.cs" />
     <Compile Include="RedisClient.cs" />
     <Compile Include="RedisCommand.cs" />
