@@ -18,7 +18,7 @@ namespace HRedis.UnitTest
             using (RedisPubSub rsc = new RedisPubSub(ip, port))
             {
                 rsc.SubscriptionReceived += rsc_SubscriptionReceived;
-                rsc.Subscribe("xxxxx");
+                //rsc.Subscribe("xxxxx");
             }
         }
 

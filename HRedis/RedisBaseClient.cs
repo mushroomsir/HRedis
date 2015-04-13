@@ -21,10 +21,7 @@ namespace HRedis
                 return;
             if (socket == null || !socket.Connected)
             {
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    NoDelay = configuration.NoDelaySocket
-                };
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 if (configuration.SendTimeout > 0)
                     socket.SendTimeout = configuration.SendTimeout;
@@ -139,7 +136,6 @@ namespace HRedis
          
             if (socket != null)
             {
-                socket.Shutdown(SocketShutdown.Send);
                 socket.Close();
             }
         }
