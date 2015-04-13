@@ -24,5 +24,6 @@ namespace HRedis
         {
             return Send(RedisCommand.GET,key);
         }
+       
     }
 }

@@ -42,6 +42,9 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisClient.String.cs" />
+    <Compile Include="RedisPubSub.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="RedisSentinelClient.cs" />
     <Compile Include="RedisBaseClient.cs" />
     <Compile Include="RedisClient.cs" />

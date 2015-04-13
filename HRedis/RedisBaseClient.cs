@@ -1,8 +1,6 @@
 ﻿using System;
-using System.ComponentModel.Design;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 
 namespace HRedis
 {
@@ -12,13 +10,10 @@ namespace HRedis
         private Socket socket;
         private NetworkStream Nstream;
 
-    
-        public delegate void SubscribeEventHandler(object message);
         public RedisBaseClient(Configuration config)
         {
             configuration = config;
         }
-
 
         private void Connect()
         {
@@ -40,7 +35,6 @@ namespace HRedis
             socket.Connect(configuration.Host, configuration.Port);
             Nstream = new NetworkStream(socket);
         }
-
 
         public object Send(RedisCommand command, params string[] args)
         {
@@ -71,7 +65,7 @@ namespace HRedis
             Nstream.Write(content, 0, content.Length);
         }
 
-        private object ReadData()
+        protected object ReadData()
         {
             var b = (char)ReadFirstByte();
            
@@ -111,7 +105,7 @@ namespace HRedis
         }
         private object[] ReadMultiBulk()
         {
-            int count = int.Parse(ReadLine()); ;
+            int count = int.Parse(ReadLine());
             if (count == -1)
                 return null;
 
@@ -136,16 +130,8 @@ namespace HRedis
             }
             return sb.ToString();
         }
-        protected void Listen(SubscribeEventHandler func)
-        {
-            do
-            {
-                func(ReadData());
-                Thread.Sleep(10);
-            } while (true);
-        }
-
-        private void Close()
+     
+        protected void Close()
         {
             SendN(RedisCommand.QUIT);
             if (Nstream != null)
@@ -158,7 +144,7 @@ namespace HRedis
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             Close();
         }
