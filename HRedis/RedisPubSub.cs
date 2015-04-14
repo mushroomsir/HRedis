@@ -24,7 +24,7 @@ namespace HRedis
         }
 
         public RedisPubSub(Configuration configuration)
-            : base(configuration)
+            : base(new RedisSocket(configuration))
         {
         }
 
@@ -71,11 +71,10 @@ namespace HRedis
 
             Listen(SubscriptionReceived);
         }
-
         public override void Dispose()
         {
             Status = 0;
-            Close();
+            base.Dispose();
         }
     }
 }

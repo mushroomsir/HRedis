@@ -15,6 +15,17 @@ namespace HRedis
             Host = "127.0.0.1";
             Port = 6379;
             SendTimeout = -1;
+            ReceiveTimeout = -1;
+        }
+    }
+
+    public class PoolConfiguration : Configuration
+    {
+        public int MaxClients { get; set; }
+
+        public PoolConfiguration()
+        {
+            MaxClients = 100;
         }
     }
 }

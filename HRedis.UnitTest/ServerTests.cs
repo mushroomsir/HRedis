@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HRedis.UnitTest
@@ -16,7 +15,6 @@ namespace HRedis.UnitTest
             using (var rcClient = new RedisClient(ip, port))
             {
                 var info = rcClient.Send(RedisCommand.INFO);
-
                 Debug.Write(info.ToString());
             }
         }
