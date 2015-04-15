@@ -8,7 +8,7 @@ namespace HRedis
     public class RedisBaseClient : IDisposable
     {
         private Socket socket;
-        internal NetworkStream Nstream;
+        //internal NetworkStream Nstream;
         private Configuration configuration;
         public RedisBaseClient(Configuration config)
         {
@@ -25,6 +25,7 @@ namespace HRedis
             
             WriteData(command, args);
         }
+
         internal void Connect()
         {
             if (socket == null)
@@ -37,9 +38,8 @@ namespace HRedis
             }
             else
                 return;
-          
+
             socket.Connect(configuration.Host, configuration.Port);
-            Nstream = new NetworkStream(socket);
         }
 
         private void InitSocket()
@@ -60,16 +60,8 @@ namespace HRedis
         internal virtual void Close()
         {
             var status = socket.IsConnected();
-            if (status && Nstream != null)
+            if (status)
                 Send(RedisCommand.QUIT);
-            try
-            {
-                Nstream.Close();
-            }
-            catch (Exception ex)
-            {
-                Debug.Write(ex.Message + ex.StackTrace);
-            }
             try
             {
                 if (status)
@@ -83,6 +75,7 @@ namespace HRedis
             {
                 if (socket != null)
                     socket.Close();
+                socket = null;
             }
             catch (Exception ex)
             {
@@ -104,9 +97,8 @@ namespace HRedis
             }
             byte[] content = Encoding.UTF8.GetBytes(sb.ToString());
 
-            Nstream.Write(content, 0, content.Length);
+            socket.Send(content);
         }
-
         protected object ReadData()
         {
             var b = (char)ReadFirstByte();
@@ -121,7 +113,7 @@ namespace HRedis
                 if (size == -1)
                     return null;
                 byte[] data = new byte[size];
-                Nstream.Read(data, 0, size);
+                socket.Receive(data, 0, size, SocketFlags.None);
                 return Encoding.UTF8.GetString(data);
             }
             if (b == MessageFormat.ReplyFigure || b == MessageFormat.ReplyStatus)
@@ -135,16 +127,21 @@ namespace HRedis
             }
             throw new RedisException("invalid message type");
         }
-        int ReadFirstByte()
+
+        private int ReadFirstByte()
         {
-            int c;
-            while ((c = Nstream.ReadByte()) != -1)
+            byte[] buffer = new byte[1];
+            do
             {
-                if (c != MessageFormat.CR && c != MessageFormat.LF)
+                socket.Receive(buffer, 0, 1, SocketFlags.None);
+                if (buffer[0] != MessageFormat.CR && buffer[0] != MessageFormat.LF)
                     break;
-            }
-            return c;
+
+            } while (buffer[0] != 0);
+
+            return buffer[0];
         }
+
         private object[] ReadMultiBulk()
         {
             int count = int.Parse(ReadLine());
@@ -158,18 +155,22 @@ namespace HRedis
             }
             return lines;
         }
+
         private string ReadLine()
         {
             var sb = new StringBuilder();
-            int c;
-            while ((c = Nstream.ReadByte()) != -1)
+            byte[] buffer = new byte[1];
+            do
             {
-                if (c == MessageFormat.CR)
+                socket.Receive(buffer, 0, 1, SocketFlags.None);
+                if (buffer[0] == MessageFormat.CR)
                     continue;
-                if (c == MessageFormat.LF)
+                if (buffer[0] == MessageFormat.LF)
                     break;
-                sb.Append((char)c);
-            }
+                sb.Append((char) buffer[0]);
+
+            } while (buffer[0] != 0);
+
             return sb.ToString();
         }
 

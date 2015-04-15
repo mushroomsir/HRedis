@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Net.Sockets;
 
 namespace HRedis
 {
@@ -46,19 +48,22 @@ namespace HRedis
             }
         }
 
-        public void Release(RedisClient socket)
+        internal void Release(RedisClient client)
         {
-            _pool.Push(socket);
+            _pool.Push(client);
         }
 
         private void Add()
         {
-            if (_pool.Count > _configuration.MaxClients)
-                throw new InvalidOperationException("Maximum sockets");
-            _pool.Push(SocketFactory());
+            //if (_pool.Count > _configuration.MaxClients)
+            //    Debug.Write("Maximum client");
+            //else
+            _pool.Push(ClientFactory());
+
+            
         }
 
-        private RedisClient SocketFactory()
+        private RedisClient ClientFactory()
         {
             return new RedisClient(_configuration)
             {

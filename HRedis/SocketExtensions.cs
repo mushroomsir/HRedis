@@ -15,7 +15,7 @@ namespace HRedis
                 if (!socket.Connected)
                     return false;
 
-                if (!socket.Poll(1, SelectMode.SelectWrite))
+                if (socket.Poll(1, SelectMode.SelectRead))
                     return false;;
                 
                 return true;
