@@ -7,14 +7,8 @@ namespace HRedis
     {
 
         internal Action<RedisClient> ReleaseClient;
-        internal RedisClient(RedisSocket redisSocket)
+        internal RedisClient(Configuration redisSocket)
             : base(redisSocket)
-        {
-
-        }
-
-        public RedisClient(Configuration configuration)
-            : this(new RedisSocket(configuration))
         {
 
         }

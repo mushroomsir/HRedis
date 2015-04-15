@@ -51,7 +51,7 @@
     <Compile Include="RedisCommand.cs" />
     <Compile Include="RedisException.cs" />
     <Compile Include="RedisProtocol.cs" />
-    <Compile Include="PoolSocket.cs" />
+    <Compile Include="SocketExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

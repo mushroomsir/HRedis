@@ -9,7 +9,7 @@ namespace HRedis
         public event SubscribeEventHandler SubscriptionReceived;
         private volatile Int32 Status = 1;
 
-        public RedisPubSub() : this(new Configuration())
+        public RedisPubSub(Configuration config) : base(config)
         {
         }
 
@@ -23,10 +23,7 @@ namespace HRedis
 
         }
 
-        public RedisPubSub(Configuration configuration)
-            : base(new RedisSocket(configuration))
-        {
-        }
+       
 
         protected void Listen(SubscribeEventHandler func)
         {

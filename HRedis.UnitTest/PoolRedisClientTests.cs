@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -53,19 +52,57 @@ namespace HRedis.UnitTest
         [TestMethod, TestCategory("poolRedisclient")]
         public void Parallel_PoolClient_Test()
         {
-            Parallel.For(0, 100, (index,item) =>
+            Parallel.For(0, 1000, new ParallelOptions() {MaxDegreeOfParallelism = 100}, (index, item) =>
             {
                 using (var client = prc.GetClient())
                 {
+                    Thread.Sleep(100);
                     client.Set("Parallel_PoolClient_Test" + index, "Parallel_PoolClient_Test");
 
                     var info2 = client.Get("Parallel_PoolClient_Test" + index);
 
                     Assert.AreEqual(info2.ToString(), "Parallel_PoolClient_Test");
                 }
-
             });
-                
+            prc.Dispose();
+        }
+
+        [TestMethod, TestCategory("poolRedisclient")]
+        public void PoolClient_TimeOut_Test()
+        {
+
+            using (var client = prc.GetClient())
+            {
+                client.Set("PoolClient_TimeOut_Test" , "PoolClient_TimeOut_Test");
+                Thread.Sleep(15000);
+                var info2 = client.Get("PoolClient_TimeOut_Test" );
+
+                Assert.AreEqual(info2.ToString(), "PoolClient_TimeOut_Test");
+            }
+            prc.Dispose();
+        }
+
+        [TestMethod, TestCategory("poolRedisclient")]
+        public void Thread_PoolClient_Test()
+        {
+            Parallel.For(0, 1000, new ParallelOptions() {MaxDegreeOfParallelism = 1000}, (index, item) =>
+            {
+                var t = new Thread(() =>
+                {
+                    Thread.Sleep(1000);
+                    using (var client = prc.GetClient())
+                    {
+                        Thread.Sleep(1000);
+                        client.Set("Parallel_PoolClient_Test" + index, "Parallel_PoolClient_Test");
+
+                        var info2 = client.Get("Parallel_PoolClient_Test" + index);
+
+                        Assert.AreEqual(info2.ToString(), "Parallel_PoolClient_Test");
+                    }
+                });
+                t.Start();
+            });
+            Thread.Sleep(1000);
             prc.Dispose();
         }
     }
