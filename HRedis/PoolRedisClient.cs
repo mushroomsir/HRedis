@@ -1,8 +1,6 @@
 ﻿
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Net.Sockets;
 
 namespace HRedis
 {
@@ -47,7 +45,6 @@ namespace HRedis
                 redisClient.Dispose();
             }
         }
-
         internal void Release(RedisClient client)
         {
             _pool.Push(client);

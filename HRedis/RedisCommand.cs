@@ -17,6 +17,7 @@ namespace HRedis
         PSUBSCRIBE,
         PUNSUBSCRIBE,
         PUBLISH,
-        PUBSUB
+        PUBSUB,
+        AUTH
     }
 }

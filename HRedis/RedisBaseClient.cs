@@ -8,7 +8,6 @@ namespace HRedis
     public class RedisBaseClient : IDisposable
     {
         private Socket socket;
-        //internal NetworkStream Nstream;
         private Configuration configuration;
         public RedisBaseClient(Configuration config)
         {
@@ -22,7 +21,11 @@ namespace HRedis
         protected void SendN(RedisCommand command, params string[] args)
         {
             Connect();
-            
+            if (!string.IsNullOrEmpty(configuration.PassWord))
+            {
+                WriteData(RedisCommand.AUTH, new[] { configuration.PassWord });
+                ReadData();
+            }
             WriteData(command, args);
         }
 
@@ -30,16 +33,17 @@ namespace HRedis
         {
             if (socket == null)
                 InitSocket();
-
             else if (!socket.IsConnected())
-            {
-                Close();
-                InitSocket();
-            }
+                Reconect();
             else
                 return;
-
             socket.Connect(configuration.Host, configuration.Port);
+        }
+
+        private void Reconect()
+        {
+            Close();
+            InitSocket();
         }
 
         private void InitSocket()
@@ -99,13 +103,14 @@ namespace HRedis
 
             socket.Send(content);
         }
+
         protected object ReadData()
         {
-            var b = (char)ReadFirstByte();
-           
+            var b = (char) ReadFirstByte();
+
             if (b == MessageFormat.ReplyMultiBulk)
             {
-               return ReadMultiBulk();
+                return ReadMultiBulk();
             }
             if (b == MessageFormat.ReplyBulk)
             {
@@ -123,9 +128,9 @@ namespace HRedis
             if ((b == MessageFormat.ReplyError))
             {
                 var errorMessage = ReadLine();
-                throw new RedisException("redis message:"+errorMessage);
+                return "|-1|1|" + errorMessage;
             }
-            throw new RedisException("invalid message type");
+            return "|-1|2|invalid message type";
         }
 
         private int ReadFirstByte()

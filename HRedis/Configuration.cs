@@ -6,9 +6,12 @@ namespace HRedis
     {
         public string Host { get; set; }
         public int Port { get; set; }
-        
+
         public int SendTimeout { get; set; }
+
         public int ReceiveTimeout { get; set; }
+
+        public string PassWord { get; set; }
 
         public Configuration()
         {

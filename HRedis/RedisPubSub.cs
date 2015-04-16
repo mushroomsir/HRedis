@@ -2,7 +2,7 @@
 
 namespace HRedis
 {
-    public class RedisPubSub : RedisBaseClient
+    public sealed class RedisPubSub : RedisBaseClient
     {
         public delegate void SubscribeEventHandler(object sender,object args);
 
@@ -25,7 +25,7 @@ namespace HRedis
 
        
 
-        protected void Listen(SubscribeEventHandler func)
+        void Listen(SubscribeEventHandler func)
         {
             do
             {
