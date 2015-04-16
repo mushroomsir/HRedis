@@ -55,14 +55,8 @@ namespace HRedis
 
         private void Add()
         {
-            //if (_pool.Count > _configuration.MaxClients)
-            //    Debug.Write("Maximum client");
-            //else
             _pool.Push(ClientFactory());
-
-            
         }
-
         private RedisClient ClientFactory()
         {
             return new RedisClient(_configuration)
