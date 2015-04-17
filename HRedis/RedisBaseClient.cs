@@ -34,13 +34,13 @@ namespace HRedis
             if (socket == null)
                 InitSocket();
             else if (!socket.IsConnected())
-                Reconect();
+                Reconnect();
             else
                 return;
             socket.Connect(configuration.Host, configuration.Port);
         }
 
-        private void Reconect()
+        private void Reconnect()
         {
             Close();
             InitSocket();
