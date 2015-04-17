@@ -8,8 +8,8 @@ namespace HRedis
     public class RedisBaseClient : IDisposable
     {
         private Socket socket;
-        protected  RedisConfiguration configuration;
-        public RedisBaseClient(RedisConfiguration config)
+        private Configuration configuration;
+        public RedisBaseClient(Configuration config)
         {
             configuration = config;
         }

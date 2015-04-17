@@ -22,7 +22,7 @@ namespace HRedis.UnitTest
         [TestMethod, TestCategory("Server")]
         public void Redis_PassWord()
         {
-            using (var rcClient = new RedisClient(new RedisConfiguration()
+            using (var rcClient = new RedisClient(new Configuration()
             {
                Host = ip,
                Port = 6381,

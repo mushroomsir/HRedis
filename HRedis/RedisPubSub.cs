@@ -4,28 +4,17 @@ namespace HRedis
 {
     public sealed class RedisPubSub : RedisBaseClient
     {
-
         public delegate void SubscribeEventHandler(object sender,object args);
 
         public event SubscribeEventHandler SubscriptionReceived;
         private volatile Int32 Status = 1;
 
-        public  RedisConfiguration RedisClientConfig { get; set; }
-        public RedisPubSub(RedisConfiguration config)
-            : base(config)
+        public RedisPubSub(Configuration config) : base(config)
         {
-            RedisClientConfig = new RedisConfiguration()
-            {
-                Host = config.Host,
-                Port = config.Port,
-                PassWord = config.PassWord,
-                ReceiveTimeout = config.ReceiveTimeout,
-                SendTimeout = config.SendTimeout
-            };
         }
 
         public RedisPubSub(string ip, int port)
-            : this(new RedisConfiguration()
+            : this(new Configuration()
             {
                 Host = ip,
                 Port = port,
@@ -33,6 +22,9 @@ namespace HRedis
         {
 
         }
+
+       
+
         void Listen(SubscribeEventHandler func)
         {
             do
