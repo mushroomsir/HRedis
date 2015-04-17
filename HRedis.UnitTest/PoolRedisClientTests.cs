@@ -109,8 +109,7 @@ namespace HRedis.UnitTest
             PoolRedisClient prc = new PoolRedisClient(new PoolConfiguration()
             {
                 Host = ip,
-                Port = port,
-                MaxClients = 100
+                Port = port
             });
             Parallel.For(0, 1000, new ParallelOptions() {MaxDegreeOfParallelism = 100}, (index, item) =>
             {
