@@ -2,7 +2,7 @@
 
 namespace HRedis
 {
-    public class Configuration
+    public class RedisConfiguration
     {
         public string Host { get; set; }
         public int Port { get; set; }
@@ -13,7 +13,7 @@ namespace HRedis
 
         public string PassWord { get; set; }
 
-        public Configuration()
+        public RedisConfiguration()
         {
             Host = "127.0.0.1";
             Port = 6379;
@@ -22,7 +22,7 @@ namespace HRedis
         }
     }
 
-    public class PoolConfiguration : Configuration
+    public class PoolConfiguration : RedisConfiguration
     {
         public int MaxClients { get; set; }
 
