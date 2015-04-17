@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="HRedis.RedisClient" Collapsed="true">
+    <Position X="3.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAABABAAAAAAAAgAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RedisClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HRedis.RedisBaseClient" Collapsed="true">
+    <Position X="4.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BABAAAQBACABAABAAEAAAIAABACgAAAAAAEEAACAAAA=</HashCode>
+      <FileName>RedisBaseClient.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="HRedis.PoolRedisClient" Collapsed="true">
+    <Position X="2" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAABCAAAAAAAAgAAAAAAAAAAAAAAAEAABBAAAA=</HashCode>
+      <FileName>PoolRedisClient.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="HRedis.RedisPubSub" Collapsed="true">
+    <Position X="5.75" Y="1.75" Width="1.5" />
+    <NestedTypes>
+      <Delegate Name="HRedis.RedisPubSub.SubscribeEventHandler" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>RedisPubSub.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAgABAEECAAAEAAAEAAAAAAACACAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>RedisPubSub.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HRedis.MessageFormat" Collapsed="true">
+    <Position X="7.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIIAAAAEAQAAAAKAAAAAIACAAAAAAAA=</HashCode>
+      <FileName>RedisProtocol.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HRedis.RedisException" Collapsed="true">
+    <Position X="7.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>RedisException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="HRedis.RedisCommand" Collapsed="true">
+    <Position X="7.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABCEAFQAAAAAAAAQAAAAAAEAAgABlAAAAAA=</HashCode>
+      <FileName>RedisCommand.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
