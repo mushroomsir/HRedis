@@ -5,8 +5,9 @@ namespace HRedis.UnitTest
     [TestClass]
     public class PushSubTests
     {
-        private const string ip = "127.0.0.1";
-        private const int port = 6381;
+        private string ip = MockData.MasterIp;
+        private int port = MockData.MasterPort;
+
 
 
         [TestMethod, TestCategory("PushSub")]
@@ -50,7 +51,6 @@ namespace HRedis.UnitTest
                // rsc.PSubscribe("*");
             }
         }
-
 
         private void rsc_SubscriptionReceived(object sender, object args)
         {

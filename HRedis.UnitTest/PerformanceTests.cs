@@ -6,8 +6,8 @@ namespace HRedis.UnitTest
     [TestClass]
     public class PerformanceTests
     {
-        private const string ip = "127.0.0.1";
-        private const int port = 6381;
+        private string ip = MockData.MasterIp;
+        private int port = MockData.MasterPort;
 
         [TestMethod, TestCategory("Performance")]
         public void Continuation_Set_Get_BySameClient()

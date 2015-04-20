@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRedis.UnitTest", "HRedis.U
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRedis", "HRedis\HRedis.csproj", "{F5184D11-D770-4B64-87BD-3AB1983F8C79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleExample", "SimpleExample\SimpleExample.csproj", "{2BD13004-AFAD-464E-8E6A-3C47F1D8FB4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F5184D11-D770-4B64-87BD-3AB1983F8C79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5184D11-D770-4B64-87BD-3AB1983F8C79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5184D11-D770-4B64-87BD-3AB1983F8C79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BD13004-AFAD-464E-8E6A-3C47F1D8FB4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BD13004-AFAD-464E-8E6A-3C47F1D8FB4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BD13004-AFAD-464E-8E6A-3C47F1D8FB4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BD13004-AFAD-464E-8E6A-3C47F1D8FB4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

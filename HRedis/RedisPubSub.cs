@@ -10,18 +10,10 @@ namespace HRedis
         public event SubscribeEventHandler SubscriptionReceived;
         private volatile Int32 Status = 1;
 
-        public  RedisConfiguration RedisClientConfig { get; set; }
         public RedisPubSub(RedisConfiguration config)
             : base(config)
         {
-            RedisClientConfig = new RedisConfiguration()
-            {
-                Host = config.Host,
-                Port = config.Port,
-                PassWord = config.PassWord,
-                ReceiveTimeout = config.ReceiveTimeout,
-                SendTimeout = config.SendTimeout
-            };
+        
         }
 
         public RedisPubSub(string ip, int port)

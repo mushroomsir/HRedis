@@ -25,16 +25,54 @@ namespace HRedis
         {
 
         }
-
+        /// <summary>
+        ///  if you use this method to get a client，You must release client.
+        /// </summary>
+        /// <returns></returns>
         public RedisClient GetClient()
         {
             RedisClient client;
             if (!_pool.TryPop(out client))
             {
-                Add();
+                Add(() =>
+                    new RedisClient(_configuration)
+                    {
+                        ReleaseClient = Release
+                    }
+                    );
                 return GetClient();
             }
             return client;
+        }
+
+        public RedisClient Cmd
+        {
+            get
+            {
+                RedisClient client;
+                if (!_pool.TryPop(out client))
+                {
+                    Add(() =>
+                        new RedisClient(_configuration)
+                        {
+                            AutoRelease = Release
+                        }
+                        );
+                    return GetClient();
+                }
+                return client;
+            }
+        }
+
+        public object Send(RedisCommand command, params string[] args)
+        {
+            var reply = Cmd.Send(command, args);
+            return reply;
+        }
+        public object Send(string command, params string[] args)
+        {
+            var reply = Cmd.Send(command, args);
+            return reply;
         }
 
         public void Dispose()
@@ -42,6 +80,7 @@ namespace HRedis
             foreach (var redisClient in _pool)
             {
                 redisClient.ReleaseClient = null;
+                redisClient.AutoRelease = null;
                 redisClient.Dispose();
             }
         }
@@ -50,16 +89,9 @@ namespace HRedis
             _pool.Push(client);
         }
 
-        private void Add()
+        private void Add(Func<RedisClient> action)
         {
-            _pool.Push(ClientFactory());
-        }
-        private RedisClient ClientFactory()
-        {
-            return new RedisClient(_configuration)
-            {
-                ReleaseClient = Release
-            };
+            _pool.Push(action());
         }
     }
 }

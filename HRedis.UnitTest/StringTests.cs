@@ -8,41 +8,53 @@ namespace HRedis.UnitTest
     [TestClass]
     public class StringTests
     {
-        private const string ip = "127.0.0.1";
-        private const int port = 6381;
+        private string ip = MockData.MasterIp;
+        private int port = MockData.MasterPort;
 
         [TestMethod, TestCategory("String")]
         public void Set_Get_key()
         {
+            var key = "Set_Get_key";
             using (var rcClient = new RedisClient(ip, port))
             {
-                rcClient.Set("Set_Get_key", "Set_Get_key");
+                rcClient.Set(key, key);
 
-                var info2 = rcClient.Get("Set_Get_key");
+                var info2 = rcClient.Get(key);
 
-                Assert.AreEqual(info2.ToString(), "Set_Get_key");
+                Assert.AreEqual(info2.ToString(), key);
             }
         }
 
         [TestMethod, TestCategory("String")]
-        public void Set_key_Expire()
+        public void Del_key()
         {
             using (var rcClient = new RedisClient(ip, port))
             {
-                rcClient.Set("Set_key_Expire", "Set_key_Expire", 10);
+                var reply = rcClient.DelKey("Set_Get_key");
 
-                var info1 = rcClient.Get("Set_key_Expire");
+                Assert.AreEqual(reply, 1);
+            }
+        }
 
-                Assert.AreEqual(info1.ToString(), "Set_key_Expire");
+
+        [TestMethod, TestCategory("String")]
+        public void Set_key_Expire()
+        {
+            var key = "Set_key_Expire";
+            using (var rcClient = new RedisClient(ip, port))
+            {
+                rcClient.Set(key, key, 10);
+
+                var info1 = rcClient.Get(key);
+
+                Assert.AreEqual(info1.ToString(), key);
 
                 Thread.Sleep(11000);
-                var info2 = rcClient.Get("Set_key_Expire");
+                var info2 = rcClient.Get(key);
 
                 Assert.AreEqual(info2, null);
 
             }
         }
-        
-
     }
 }

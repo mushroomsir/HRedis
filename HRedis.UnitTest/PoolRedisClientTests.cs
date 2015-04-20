@@ -9,10 +9,9 @@ namespace HRedis.UnitTest
     [TestClass]
     public class PoolRedisClientTests
     {
-        private const string ip = "127.0.0.1";
-        private const int port = 6381;
 
-
+        private string ip = MockData.MasterIp;
+        private int port = MockData.MasterPort;
 
         [TestMethod, TestCategory("poolRedisclient")]
         public void GetClient_Test()
@@ -23,6 +22,7 @@ namespace HRedis.UnitTest
                 Port = port,
                 MaxClients = 100
             });
+
             using (var client = prc.GetClient())
             {
                 client.Set("GetClient_Test", "GetClient_Test");

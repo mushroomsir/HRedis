@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
+using System;
 
 namespace HRedis
 {
@@ -9,7 +7,7 @@ namespace HRedis
     {
         public object Set(string key, string value)
         {
-            return Send(RedisCommand.SET, key, value);
+            return Execute(() => Send(RedisCommand.SET, key, value));
         }
 
         public object Set(string key, string value, int seconds)
@@ -17,13 +15,19 @@ namespace HRedis
             Send(RedisCommand.MULTI);
             Set(key, value);
             Send(RedisCommand.EXPIRE, key, seconds.ToString());
-            return Send(RedisCommand.EXEC);
+            return Execute(() => Send(RedisCommand.EXEC));
         }
 
         public object Get(string key)
         {
-            return Send(RedisCommand.GET,key);
+            return Execute(() => Send(RedisCommand.GET, key));
         }
-       
+
+        private object Execute(Func<object> func)
+        {
+            var reply = func();
+            Continuation();
+            return reply;
+        }
     }
 }

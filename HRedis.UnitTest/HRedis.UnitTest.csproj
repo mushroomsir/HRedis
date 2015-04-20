@@ -53,9 +53,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="MockData.cs" />
     <Compile Include="PerformanceTests.cs" />
+    <Compile Include="NewPoolRedisClientTests.cs" />
     <Compile Include="PoolRedisClientTests.cs" />
     <Compile Include="PushSubTests.cs" />
+    <Compile Include="SentinelTests.cs" />
     <Compile Include="ServerTests.cs" />
     <Compile Include="StringTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

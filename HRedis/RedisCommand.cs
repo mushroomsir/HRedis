@@ -18,6 +18,9 @@ namespace HRedis
         PUNSUBSCRIBE,
         PUBLISH,
         PUBSUB,
-        AUTH
+        AUTH,
+        PING,
+        DBSIZE,
+        DEL
     }
 }

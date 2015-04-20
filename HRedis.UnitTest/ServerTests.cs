@@ -6,16 +6,27 @@ namespace HRedis.UnitTest
     [TestClass]
     public class ServerTests
     {
-        private const string ip = "127.0.0.1";
-        private const int port = 6381;
+        private string ip = MockData.MasterIp;
+        private int port = MockData.MasterPort;
+
 
         [TestMethod, TestCategory("Server")]
-        public void Redis_Command_Info()
+        public void Info_Test()
         {
             using (var rcClient = new RedisClient(ip, port))
             {
-                var info = rcClient.Send(RedisCommand.INFO);
+                var info = rcClient.Info();
                 Debug.Write(info.ToString());
+            }
+        }
+         [TestMethod, TestCategory("Server")]
+        public void Ping_Test()
+        {
+            using (RedisSentinel rsc = new RedisSentinel(ip, port))
+            {
+                var result = rsc.Ping();
+
+                Assert.AreEqual("PONG", result);
             }
         }
 

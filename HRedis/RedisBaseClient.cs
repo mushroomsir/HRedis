@@ -5,31 +5,43 @@ using System.Text;
 
 namespace HRedis
 {
-    public class RedisBaseClient : IDisposable
+    public partial class RedisBaseClient : IDisposable
     {
         private Socket socket;
-        protected  RedisConfiguration configuration;
+        public readonly RedisConfiguration Configuration;
+
         public RedisBaseClient(RedisConfiguration config)
         {
-            configuration = config;
+            Configuration = config;
         }
-        public object Send(RedisCommand command, params string[] args)
+
+        internal object Send(RedisCommand command, params string[] args)
+        {
+            SendN(command.ToString(), args);
+            return ReadData();
+        }
+
+        internal object Send(string command, params string[] args)
         {
             SendN(command, args);
             return ReadData();
         }
-        protected void SendN(RedisCommand command, params string[] args)
+
+        private void SendN(string command, params string[] args)
         {
             Connect();
-            if (!string.IsNullOrEmpty(configuration.PassWord))
+            if (!string.IsNullOrEmpty(Configuration.PassWord))
             {
-                WriteData(RedisCommand.AUTH, new[] { configuration.PassWord });
+                WriteData(RedisCommand.AUTH.ToString(), new[] {Configuration.PassWord});
                 ReadData();
             }
             WriteData(command, args);
         }
 
-        internal void Connect()
+
+        #region Manager Connect 
+
+        private void Connect()
         {
             if (socket == null)
                 InitSocket();
@@ -37,7 +49,7 @@ namespace HRedis
                 Reconect();
             else
                 return;
-            socket.Connect(configuration.Host, configuration.Port);
+            socket.Connect(Configuration.Host, Configuration.Port);
         }
 
         private void Reconect()
@@ -50,18 +62,14 @@ namespace HRedis
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            if (configuration.SendTimeout > 0)
-                socket.SendTimeout = configuration.SendTimeout;
+            if (Configuration.SendTimeout > 0)
+                socket.SendTimeout = Configuration.SendTimeout;
 
-            if (configuration.ReceiveTimeout > 0)
-                socket.ReceiveTimeout = configuration.ReceiveTimeout;
-        }
-        public bool IsConnected()
-        {
-            return socket.IsConnected();
+            if (Configuration.ReceiveTimeout > 0)
+                socket.ReceiveTimeout = Configuration.ReceiveTimeout;
         }
 
-        internal virtual void Close()
+        private void Close()
         {
             var status = socket.IsConnected();
             if (status)
@@ -87,12 +95,16 @@ namespace HRedis
             }
         }
 
-        private void WriteData(RedisCommand command, string[] args)
+        #endregion
+
+        #region  Reading and Writing for Messages
+
+        private void WriteData(string command, string[] args)
         {
             var sb = new StringBuilder();
             sb.AppendFormat(MessageFormat.Head, args.Length + 1);
 
-            var cmd = command.ToString();
+            var cmd = command;
             sb.AppendFormat(MessageFormat.Argument, cmd.Length, cmd);
 
             foreach (var arg in args)
@@ -178,6 +190,9 @@ namespace HRedis
 
             return sb.ToString();
         }
+
+        #endregion
+
 
         public virtual void Dispose()
         {
