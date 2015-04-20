@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration.cs" />
+    <Compile Include="RedisConfiguration.cs" />
     <Compile Include="PoolRedisClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisBaseCommand.cs" />
@@ -54,6 +54,9 @@
     <Compile Include="RedisProtocol.cs" />
     <Compile Include="RedisSentinel.cs" />
     <Compile Include="SocketExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
