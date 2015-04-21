@@ -9,14 +9,10 @@ namespace HRedis
         {
             try
             {
-               
                 if (!socket.Connected)
                     return false;
 
-                if (socket.Poll(1, SelectMode.SelectRead))
-                    return false;;
-                
-                return true;
+                return !(socket.Poll(1000, SelectMode.SelectRead) && socket.Available == 0);
             }
             catch (SocketException exception)
             {

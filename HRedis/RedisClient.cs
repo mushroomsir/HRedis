@@ -7,7 +7,7 @@ namespace HRedis
     {
         internal Action<RedisClient> ReleaseClient;
         internal Action<RedisClient> AutoRelease;
-        internal RedisClient(RedisConfiguration configuration)
+        public RedisClient(RedisConfiguration configuration)
             : base(configuration)
         {
 
@@ -32,7 +32,7 @@ namespace HRedis
                 ReleaseClient(this);
         }
 
-        private void Continuation()
+        protected override void Continuation()
         {
             if (AutoRelease != null)
                 AutoRelease(this);
@@ -41,7 +41,7 @@ namespace HRedis
         public int DelKey(string key)
         {
             int nums;
-            var reply = Execute(() => Send(RedisCommand.DEL, key)).ToString();
+            var reply = Execute(RedisCommand.DEL, key).ToString();
             if (int.TryParse(reply, out nums))
                 return nums;
             throw new Exception(reply);

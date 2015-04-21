@@ -64,16 +64,16 @@ namespace HRedis
             }
         }
 
-        public object Send(RedisCommand command, params string[] args)
-        {
-            var reply = Cmd.Send(command, args);
-            return reply;
-        }
-        public object Send(string command, params string[] args)
-        {
-            var reply = Cmd.Send(command, args);
-            return reply;
-        }
+        //public object Execute(RedisCommand command, params string[] args)
+        //{
+        //    var reply = Cmd.Execute(command, args);
+        //    return reply;
+        //}
+        //public object Send(string command, params string[] args)
+        //{
+        //    var reply = Cmd.Execute(command, args);
+        //    return reply;
+        //}
 
         public void Dispose()
         {

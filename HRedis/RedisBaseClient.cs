@@ -194,6 +194,23 @@ namespace HRedis
         #endregion
 
 
+        protected virtual void Continuation()
+        {
+
+        }
+
+        private object Execute(Func<object> func, Action action)
+        {
+            var reply = func();
+            action();
+            return reply;
+        }
+
+        public object Execute(RedisCommand rc, params string[] args)
+        {
+            return Execute(() => Send(rc, args), Continuation);
+        }
+
         public virtual void Dispose()
         {
             Close();

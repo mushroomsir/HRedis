@@ -7,7 +7,7 @@ namespace HRedis
     {
         public object Set(string key, string value)
         {
-            return Execute(() => Send(RedisCommand.SET, key, value));
+            return Execute(RedisCommand.SET, key, value);
         }
 
         public object Set(string key, string value, int seconds)
@@ -15,19 +15,14 @@ namespace HRedis
             Send(RedisCommand.MULTI);
             Set(key, value);
             Send(RedisCommand.EXPIRE, key, seconds.ToString());
-            return Execute(() => Send(RedisCommand.EXEC));
+            return Execute(RedisCommand.EXEC);
         }
 
         public object Get(string key)
         {
-            return Execute(() => Send(RedisCommand.GET, key));
+            return Execute(RedisCommand.GET, key);
         }
 
-        private object Execute(Func<object> func)
-        {
-            var reply = func();
-            Continuation();
-            return reply;
-        }
+      
     }
 }

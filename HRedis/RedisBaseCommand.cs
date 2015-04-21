@@ -5,11 +5,12 @@ namespace HRedis
     {
         public string Ping()
         {
-            return Send(RedisCommand.PING).ToString();
+            return Execute(RedisCommand.PING).ToString();
         }
+
         public string Info()
         {
-            return Send(RedisCommand.INFO).ToString();
+            return Execute(RedisCommand.INFO).ToString();
         }
     }
 }
