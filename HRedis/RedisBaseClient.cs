@@ -116,7 +116,7 @@ namespace HRedis
             socket.Send(content);
         }
 
-        protected object ReadData()
+        internal object ReadData()
         {
             var b = (char) ReadFirstByte();
 

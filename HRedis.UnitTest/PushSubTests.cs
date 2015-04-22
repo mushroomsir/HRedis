@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace HRedis.UnitTest
 {
@@ -6,8 +7,7 @@ namespace HRedis.UnitTest
     public class PushSubTests
     {
         private string ip = MockData.MasterIp;
-        private int port = MockData.MasterPort;
-
+        private const int port = 6379;
 
 
         [TestMethod, TestCategory("PushSub")]
@@ -15,8 +15,10 @@ namespace HRedis.UnitTest
         {
             using (RedisPubSub rsc = new RedisPubSub(ip, port))
             {
-                rsc.SubscriptionReceived += rsc_SubscriptionReceived;
-                //rsc.Subscribe("xxxxx");
+                rsc.OnMessage += OnMessage;
+                rsc.Subscribe("test");
+
+                Thread.Sleep(10000);
             }
         }
 
@@ -25,34 +27,32 @@ namespace HRedis.UnitTest
         {
             using (RedisPubSub rsc = new RedisPubSub(ip, port))
             {
-               // rsc.Publish("321", "test");
+                rsc.Publish("test", "Publish_Test");
             }
         }
 
-        [TestMethod, TestCategory("PushSub")]
-        public void Subscribe_Sentinel_Test()
-        {
-
-            using (RedisPubSub rsc = new RedisPubSub("127.0.0.1", 20001))
-            {
-                rsc.SubscriptionReceived += rsc_SubscriptionReceived;
-
-                //rsc.Subscribe("+sdown");
-            }
-
-        }
 
         [TestMethod, TestCategory("PushSub")]
         public void PSubscribe_Sentinel_Test()
         {
-            using (RedisPubSub rsc = new RedisPubSub("127.0.0.1", 20001))
+            using (RedisPubSub rsc = new RedisPubSub(ip, port))
             {
-                rsc.SubscriptionReceived += rsc_SubscriptionReceived;
-               // rsc.PSubscribe("*");
+                rsc.OnMessage += OnMessage;
+                rsc.PSubscribe("*");
+
             }
         }
-
-        private void rsc_SubscriptionReceived(object sender, object args)
+        [TestMethod, TestCategory("PushSub")]
+        public void Subscribe_Error_Test()
+        {
+            using (RedisPubSub rsc = new RedisPubSub(ip, 10000))
+            {
+                rsc.OnMessage += OnMessage;
+                rsc.PSubscribe("*");
+            }
+            Thread.Sleep(100000);
+        }
+        private void OnMessage(object sender, object args)
         {
             if (args is object[])
             {
@@ -68,7 +68,6 @@ namespace HRedis.UnitTest
             }
 
             var sr = sender as RedisPubSub;
-            sr.UnSubscribe("*");
         }
     }
 }

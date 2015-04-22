@@ -9,6 +9,9 @@ namespace HRedis
         {
             try
             {
+                if (socket == null)
+                    return false;
+
                 if (!socket.Connected)
                     return false;
 

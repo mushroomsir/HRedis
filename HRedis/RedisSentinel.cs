@@ -1,15 +1,18 @@
 ﻿
+using System;
+
 namespace HRedis
 {
-    public class RedisSentinel : RedisBaseClient
+    public class RedisSentinel:IDisposable
     {
-         public RedisSentinel(RedisConfiguration config)
-            : base(config)
+        private RedisClient client;
+
+        public RedisSentinel(RedisConfiguration config)
         {
-           
+            client = new RedisClient(config);
         }
 
-         public RedisSentinel(string ip, int port)
+        public RedisSentinel(string ip, int port)
             : this(new RedisConfiguration()
             {
                 Host = ip,
@@ -17,6 +20,16 @@ namespace HRedis
             })
         {
 
+        }
+
+        public bool Ping()
+        {
+           return client.Ping();
+        }
+
+        public void Dispose()
+        {
+            client.Dispose();
         }
     }
 }

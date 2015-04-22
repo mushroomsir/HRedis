@@ -21,6 +21,7 @@ namespace HRedis
         AUTH,
         PING,
         DBSIZE,
-        DEL
+        DEL,
+        SELECT
     }
 }

@@ -15,11 +15,15 @@ namespace HRedis.UnitTest
         {
             using (var rcClient = new RedisClient(ip, port))
             {
-                var info = rcClient.Info();
-                Debug.Write(info.ToString());
+                var info = rcClient.Info;
+                foreach (var item in info)
+                {
+                    Debug.Write(item.Key + ":" + item.Value + "\r\n");
+                }
             }
         }
-         [TestMethod, TestCategory("Server")]
+
+        [TestMethod, TestCategory("Server")]
         public void Ping_Test()
         {
             using (RedisSentinel rsc = new RedisSentinel(ip, port))

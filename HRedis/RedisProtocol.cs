@@ -47,4 +47,10 @@ namespace HRedis
         public static readonly char ReplyFigure = ':';
 
     }
+
+    public class ReplyFormat
+    {
+        public static readonly string ReplySuccess = "OK";
+        public static readonly string PingSuccess = "PONG";
+    }
 }
