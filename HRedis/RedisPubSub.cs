@@ -124,7 +124,7 @@ namespace HRedis
                 {
                     Interlocked.Exchange(ref Status, 0);
                     Interlocked.Increment(ref RetryCount);
-                    if (RetryCount == 4)
+                    if (RetryCount >= 4)
                     {
                         if (OnError != null)
                             OnError(exception);
