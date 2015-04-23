@@ -19,8 +19,10 @@ namespace HRedis
 
         private Thread thread;
 
+        public RedisConfiguration Configuration;
         public RedisPubSub(RedisConfiguration config)
         {
+            Configuration = config;
             client = new RedisBaseClient(config);
         }
 
