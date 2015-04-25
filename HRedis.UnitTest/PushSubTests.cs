@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace HRedis.UnitTest
@@ -23,15 +24,37 @@ namespace HRedis.UnitTest
         }
 
         [TestMethod, TestCategory("PushSub")]
-        public void Publish_Test()
+        public void UnSubscribe_Test()
         {
-            using (RedisPubSub rsc = new RedisPubSub(ip, port))
+            RedisPubSub rsc = new RedisPubSub(ip, port);
+            rsc.OnUnSubscribe += (obj) =>
             {
-                rsc.Publish("test", "Publish_Test");
-            }
+                var reply = obj as object[];
+
+                Debug.WriteLine(reply[0].ToString() + reply[1].ToString() + reply[2].ToString());
+            };
+            rsc.OnSuccess += (obj) =>
+            {
+                Debug.WriteLine(obj[0].ToString() + obj[1].ToString() + obj[2].ToString());
+            };
+
+            rsc.Subscribe("test");
+            Thread.Sleep(1000);
+            rsc.UnSubscribe("test");
+            rsc.Subscribe("test");
+            Thread.Sleep(1000);
+            rsc.UnSubscribe("test");
         }
 
 
+        [TestMethod]
+        public void Push_Sentinel_Test()
+        {
+            using (RedisPubSub rcClient = new RedisPubSub("127.0.0.1", 20002))
+            {
+                rcClient.Publish("*", "test");
+            }
+        }
         [TestMethod, TestCategory("PushSub")]
         public void PSubscribe_Sentinel_Test()
         {

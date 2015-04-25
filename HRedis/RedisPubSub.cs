@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Net.Sockets;
+using System.Diagnostics;
 using System.Threading;
 
 namespace HRedis
@@ -13,13 +13,13 @@ namespace HRedis
         public Action<object> OnUnSubscribe;
         public Action<Exception> OnError;
 
-        private int Status = 1;
         private string ChannelName = string.Empty;
-        private int RetryCount = 0;
+        private bool IsPattern = false;
 
         private Thread thread;
 
         public RedisConfiguration Configuration;
+
         public RedisPubSub(RedisConfiguration config)
         {
             Configuration = config;
@@ -38,14 +38,27 @@ namespace HRedis
 
         private void Listen()
         {
-            do
+            while (true)
             {
-                if (OnMessage != null)
-                    OnMessage(this, client.ReadData());
+                var reply = client.ReadData();
+                if (reply is object[])
+                {
+                    var val = reply as object[];
+                    if (val[0].ToString().ToLower().Contains("unsubscribe"))
+                    {
+                        if (OnUnSubscribe != null)
+                            OnUnSubscribe(val);
+                        break;
+                    }
+                    if (OnMessage != null)
+                        OnMessage(this, reply);
+                }
                 else
-                    client.ReadData();
-
-            } while (Status == 1);
+                {
+                    if (OnMessage != null)
+                        OnMessage(this, reply);
+                }
+            }
         }
 
         public object Publish(string channel, string message)
@@ -56,15 +69,17 @@ namespace HRedis
         public void Subscribe(string channelName)
         {
             Init(channelName);
-            Subscribe();
+            thread = new Thread(() => CheckSubscribe(IsPattern));
+            thread.Start();
         }
 
         public void PSubscribe(string channelName)
         {
             Init(channelName);
-            Subscribe(isPattern: true);
+            IsPattern = true;
+            thread = new Thread(() => CheckSubscribe(IsPattern));
+            thread.Start();
         }
-
 
         public void UnSubscribe(string channelName)
         {
@@ -73,7 +88,7 @@ namespace HRedis
 
         public void UnPSubscribe(string channelName)
         {
-            UnSubscribe(isPattern: true);
+            UnSubscribe();
         }
 
         private void Init(string channelName)
@@ -95,65 +110,43 @@ namespace HRedis
             Listen();
         }
 
-        private void Subscribe(bool isPattern = false)
-        {
-            thread = new Thread(n => CheckSubscribe((bool) n));
-            thread.Start(isPattern);
-        }
-
         private void CheckSubscribe(bool isPattern = false)
         {
-            while (RetryCount <= 3 && Status == 1)
-            {
-                try
-                {
-                    if (RetryCount > 0)
-                        Thread.Sleep(RetryCount*1000);
 
-                    Interlocked.Exchange(ref Status, 1);
-                    Run(isPattern);
-                }
-                catch (SocketException exception)
-                {
-                    if (OnError != null)
-                        OnError(exception);
-                    break;
-                }
-                catch (ThreadAbortException exception) { }
-                catch (Exception exception)
-                {
-                    Interlocked.Exchange(ref Status, 0);
-                    Interlocked.Increment(ref RetryCount);
-                    if (RetryCount >= 4)
-                    {
-                        if (OnError != null)
-                            OnError(exception);
-                        break;
-                    }
-                }
+            try
+            {
+                Run(isPattern);
+            }
+            catch (ThreadAbortException exception)
+            {
+            }
+            catch (Exception exception)
+            {
+                if (OnError != null)
+                    OnError(exception);
             }
         }
 
-        private void UnSubscribe(bool isPattern = false)
+        private void UnSubscribe()
         {
-            Interlocked.Exchange(ref Status, 0);
-            object repy;
-            if (isPattern)
-                repy = client.Send(RedisCommand.PUNSUBSCRIBE, ChannelName);
-            else
-                repy = client.Send(RedisCommand.UNSUBSCRIBE, ChannelName);
-
-
-            if (OnUnSubscribe != null)
-                OnUnSubscribe(repy);
-
+            try
+            {
+                if (IsPattern)
+                    client.SendN(RedisCommand.PUNSUBSCRIBE.ToString(), ChannelName);
+                else
+                    client.SendN(RedisCommand.UNSUBSCRIBE.ToString(), ChannelName);
+            }
+            catch (Exception exception)
+            {
+                Debug.Print("Hredis UnSubscribe:" + exception.Message);
+            }
         }
 
         public void Dispose()
         {
-            Interlocked.Exchange(ref Status, 0);
-             if (thread != null)
+            if (thread != null)
                 thread.Abort();
+            
             client.Dispose();
         }
     }

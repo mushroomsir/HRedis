@@ -27,7 +27,7 @@ namespace HRedis
             return ReadData();
         }
 
-        private void SendN(string command, params string[] args)
+        internal void SendN(string command, params string[] args)
         {
             Connect();
             if (!string.IsNullOrEmpty(Configuration.PassWord))
@@ -50,6 +50,7 @@ namespace HRedis
             else
                 return;
             socket.Connect(Configuration.Host, Configuration.Port);
+
         }
 
         private void Reconnect()
@@ -140,9 +141,9 @@ namespace HRedis
             if ((b == MessageFormat.ReplyError))
             {
                 var errorMessage = ReadLine();
-                return "|-1|1|" + errorMessage;
+                return errorMessage;
             }
-            return "|-1|2|invalid message type";
+            return b;
         }
 
         private int ReadFirstByte()
