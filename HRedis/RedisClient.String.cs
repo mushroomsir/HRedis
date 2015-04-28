@@ -5,22 +5,31 @@ namespace HRedis
 {
     public partial class RedisClient
     {
-        public object Set(string key, string value)
+        public bool Set<T>(string key, T value)
         {
-            return Execute(RedisCommand.SET, key, value);
+            return Execute(RedisCommand.SET, key, JsonConvert.SerializeObject(value)) == ReplyFormat.ReplySuccess;
         }
 
-        public object Set(string key, string value, int seconds)
+        public bool Set<T>(string key, T value, int seconds)
         {
             Send(RedisCommand.MULTI);
-            Set(key, value);
+            Set(key, JsonConvert.SerializeObject(value));
             Send(RedisCommand.EXPIRE, key, seconds.ToString());
-            return Execute(RedisCommand.EXEC);
+            return Execute(RedisCommand.EXEC) == ReplyFormat.ReplySuccess;
         }
-
-        public object Get(string key)
+      
+        public string Set(string key, string value)
+        {
+            return Execute(RedisCommand.SET, key);
+        }
+        public string Get(string key)
         {
             return Execute(RedisCommand.GET, key);
+        }
+
+        public T Get<T>(string key)
+        {
+            return JsonConvert.DeserializeObject<T>(Execute(RedisCommand.GET, key));
         }
 
       

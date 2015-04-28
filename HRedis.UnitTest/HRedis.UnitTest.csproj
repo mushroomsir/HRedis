@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="MockData.cs" />
     <Compile Include="PerformanceTests.cs" />
-    <Compile Include="NewPoolRedisClientTests.cs" />
     <Compile Include="PoolRedisClientTests.cs" />
     <Compile Include="PushSubTests.cs" />
     <Compile Include="SentinelTests.cs" />

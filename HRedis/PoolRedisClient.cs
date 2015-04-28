@@ -1,97 +1,95 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace HRedis
 {
     public class PoolRedisClient : IDisposable
     {
         private PoolConfiguration _configuration;
-        private readonly ConcurrentStack<RedisClient> _pool;
+        private readonly ConcurrentQueue<RedisClient> _pool;
+        private readonly List<RedisClient> _usegPool;
 
+        private object obj=new object();
         public PoolRedisClient(PoolConfiguration configuration)
         {
             _configuration = configuration;
-            _pool = new ConcurrentStack<RedisClient>();
+            _pool = new ConcurrentQueue<RedisClient>();
+            _usegPool=new List<RedisClient>();
         }
 
         public PoolRedisClient(string ip, int port)
             : this(new PoolConfiguration()
             {
-
                 Host = ip,
                 Port = port,
             })
         {
 
         }
-        /// <summary>
-        ///  if you use this method to get a client，You must release client.
-        /// </summary>
-        /// <returns></returns>
-        public RedisClient GetClient()
+
+        public object Multi(Func<RedisClient, object> func)
         {
             RedisClient client;
-            if (!_pool.TryPop(out client))
+            if (!_pool.TryDequeue(out client))
             {
-                Add(() =>
-                    new RedisClient(_configuration)
-                    {
-                        ReleaseClient = Release
-                    }
-                    );
-                return GetClient();
+                client = new RedisClient(_configuration);
+                lock (obj)
+                {
+                    _usegPool.Add(client);
+                }
             }
-            return client;
+            object result = null;
+            try
+            {
+                result = func(client);
+            }
+            catch (Exception)
+            {
+                lock (obj)
+                {
+                    _usegPool.Remove(client);
+                }
+                _pool.Enqueue(client);
+                throw;
+            }
+            _pool.Enqueue(client);
+            return result;
         }
 
-        public RedisClient Cmd
+        public RedisClient Single
         {
             get
             {
                 RedisClient client;
-                if (!_pool.TryPop(out client))
+                if (!_pool.TryDequeue(out client))
                 {
-                    Add(() =>
-                        new RedisClient(_configuration)
-                        {
-                            AutoRelease = Release
-                        }
-                        );
-                    return GetClient();
+                    client = new RedisClient(_configuration)
+                    {
+                        AutoRelease = Release
+                    };
+                    lock (obj)
+                    {
+                        _usegPool.Add(client);
+                    }
                 }
                 return client;
             }
         }
-
-        //public object Execute(RedisCommand command, params string[] args)
-        //{
-        //    var reply = Cmd.Execute(command, args);
-        //    return reply;
-        //}
-        //public object Send(string command, params string[] args)
-        //{
-        //    var reply = Cmd.Execute(command, args);
-        //    return reply;
-        //}
-
-        public void Dispose()
+        private void Release(RedisClient client)
         {
-            foreach (var redisClient in _pool)
+            _pool.Enqueue(client);
+            lock (obj)
             {
-                redisClient.ReleaseClient = null;
-                redisClient.AutoRelease = null;
-                redisClient.Dispose();
+                _usegPool.Remove(client);
             }
         }
-        internal void Release(RedisClient client)
+        public void Dispose()
         {
-            _pool.Push(client);
-        }
-
-        private void Add(Func<RedisClient> action)
-        {
-            _pool.Push(action());
+            for (int i = 0; i < _usegPool.Count; i++)
+            {
+                _usegPool[i].Dispose();
+            }
         }
     }
 }

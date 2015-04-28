@@ -12,7 +12,7 @@ namespace HRedis
         public int ReceiveTimeout { get; set; }
 
         public string PassWord { get; set; }
-
+        public IJsonConvert JsonConvert { get; set; }
         public RedisConfiguration()
         {
             Host = "127.0.0.1";
