@@ -24,12 +24,11 @@ namespace SimpleExample
             //    SendTimeout = 0
             //});
 
-            //PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
-            //prc.Cmd.Info();
+            PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
+            var info = prc.Single.Info;
 
 
             //  Console.WriteLine((1 == get1() || 1 == get2()));
-
             //PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
             //using (var client = prc.GetClient())
             //{

@@ -24,9 +24,19 @@ namespace HRedis
 
         public bool Ping()
         {
-           return client.Ping();
+            try
+            {
+                return client.Ping();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
-
+        public bool PingRaw()
+        {
+            return client.Ping();
+        }
         public void Dispose()
         {
             client.Dispose();

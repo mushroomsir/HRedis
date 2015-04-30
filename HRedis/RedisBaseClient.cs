@@ -64,10 +64,11 @@ namespace HRedis
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             if (Configuration.SendTimeout > 0)
-                socket.SendTimeout = Configuration.SendTimeout;
+                socket.SendTimeout = Configuration.SendTimeout*1000;
 
             if (Configuration.ReceiveTimeout > 0)
-                socket.ReceiveTimeout = Configuration.ReceiveTimeout;
+                socket.ReceiveTimeout = Configuration.ReceiveTimeout * 1000;
+
         }
 
         private void Close()
@@ -205,6 +206,7 @@ namespace HRedis
             try
             {
                 reply = func();
+                action();
             }
             catch (Exception)
             {

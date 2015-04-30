@@ -56,7 +56,8 @@ namespace HRedis.UnitTest
             {
                 Host = ip,
                 Port = port,
-                MaxClients = 100
+                MaxClients = 10,
+                MinClients = 5,
             });
             Parallel.For(0, 1000, new ParallelOptions() {MaxDegreeOfParallelism = 100}, (index, item) =>
             {
@@ -69,7 +70,29 @@ namespace HRedis.UnitTest
             });
             //prc.Dispose();
         }
+        [TestMethod, TestCategory("poolRedisclient")]
+        public void Pool_Connect_TimeOut()
+        {
+            PoolRedisClient prc = new PoolRedisClient(new PoolConfiguration()
+            {
+                Host = ip,
+                Port = port,
+                MaxClients = 2,
+                MinClients = 1,
+                SendTimeout = 5,
+                ReceiveTimeout = 5
+            });
+            Parallel.For(0, 1000, new ParallelOptions() { MaxDegreeOfParallelism = 100 }, (index, item) =>
+            {
+                Thread.Sleep(100);
+                prc.Single.Set("Parallel_PoolClient_Test" + index, "Parallel_PoolClient_Test");
 
+                var info2 = prc.Single.Get("Parallel_PoolClient_Test" + index);
+
+                Assert.AreEqual(info2.ToString(), "Parallel_PoolClient_Test");
+            });
+            //prc.Dispose();
+        }
         [TestMethod, TestCategory("poolRedisclient")]
         public void Pool_Single_TimeOut()
         {
@@ -77,7 +100,7 @@ namespace HRedis.UnitTest
             {
                 Host = ip,
                 Port = port,
-                MaxClients = 100
+                MaxClients = 10
             });
             prc.Single.Set("PoolClient_TimeOut_Test", "PoolClient_TimeOut_Test");
             Thread.Sleep(15000);

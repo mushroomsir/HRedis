@@ -50,14 +50,9 @@ namespace HRedis
                             OnUnSubscribe(val);
                         break;
                     }
-                    if (OnMessage != null)
-                        OnMessage(this, reply);
                 }
-                else
-                {
-                    if (OnMessage != null)
-                        OnMessage(this, reply);
-                }
+                if (OnMessage != null)
+                    OnMessage(this, reply);
             }
         }
 

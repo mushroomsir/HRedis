@@ -5,14 +5,14 @@ namespace HRedis
 {
     public sealed partial class RedisClient : RedisBaseClient
     {
-        internal Action<RedisClient> AutoRelease;
-
         public IJsonConvert JsonConvert { get; set; }
         public RedisClient(RedisConfiguration configuration)
             : base(configuration)
         {
             JsonConvert = Configuration.JsonConvert ?? new JsonConvert();
+            _configuration = configuration;
         }
+        private RedisConfiguration _configuration;
 
         public RedisClient(string ip, int port)
             : this(new RedisConfiguration()
@@ -20,25 +20,11 @@ namespace HRedis
 
                 Host = ip,
                 Port = port,
-                ReceiveTimeout=20,
-                SendTimeout = 20,
+                ReceiveTimeout=60,
+                SendTimeout = 60,
             })
         {
 
-        }
-
-        public override void Dispose()
-        {
-            if (AutoRelease == null)
-                base.Dispose();
-            else
-                AutoRelease(this);
-        }
-
-        protected override void Continuation()
-        {
-            if (AutoRelease != null)
-                AutoRelease(this);
         }
 
         public int DelKey(string key)

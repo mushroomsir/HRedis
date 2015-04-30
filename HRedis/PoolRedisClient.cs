@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace HRedis
 {
@@ -8,14 +9,18 @@ namespace HRedis
     {
         private PoolConfiguration _configuration;
         private readonly ConcurrentQueue<RedisClient> _pool;
-        private readonly List<RedisClient> _usegPool;
 
-        private object obj=new object();
+        private Actions action;
+
+        private SemaphoreSlim _semaphore;
+
         public PoolRedisClient(PoolConfiguration configuration)
         {
             _configuration = configuration;
             _pool = new ConcurrentQueue<RedisClient>();
-            _usegPool=new List<RedisClient>();
+            _semaphore = new SemaphoreSlim(configuration.MinClients, configuration.MaxClients);
+
+            action = new Actions(this);
         }
 
         public PoolRedisClient(string ip, int port)
@@ -23,72 +28,56 @@ namespace HRedis
             {
                 Host = ip,
                 Port = port,
+                MinClients = 10,
+                MaxClients = 100
             })
         {
 
         }
 
-        public object Multi(Func<RedisClient, object> func)
+        public T Multi<T>(Func<RedisClient, T> func)
         {
-            RedisClient client;
-            if (!_pool.TryDequeue(out client))
-            {
-                client = new RedisClient(_configuration);
-                lock (obj)
-                {
-                    _usegPool.Add(client);
-                }
-            }
-            object result = null;
+            _semaphore.Wait(60000);
+
+            RedisClient client = null;
             try
             {
-                result = func(client);
-            }
-            catch (Exception)
-            {
-                lock (obj)
-                {
-                    _usegPool.Remove(client);
-                }
-                _pool.Enqueue(client);
-                throw;
-            }
-            _pool.Enqueue(client);
-            return result;
-        }
-
-        public RedisClient Single
-        {
-            get
-            {
-                RedisClient client;
                 if (!_pool.TryDequeue(out client))
                 {
-                    client = new RedisClient(_configuration)
-                    {
-                        AutoRelease = Release
-                    };
-                    lock (obj)
-                    {
-                        _usegPool.Add(client);
-                    }
+                    client = new RedisClient(_configuration);
                 }
-                return client;
+                var result = func(client);
+                _pool.Enqueue(client);
+                return result;
             }
-        }
-        private void Release(RedisClient client)
-        {
-            _pool.Enqueue(client);
-            lock (obj)
+            catch (SocketException exception)
             {
-                _usegPool.Remove(client);
+                if (client != null)
+                    client.Dispose();
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw exception;
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
+
+        public Actions Single
+        {
+            get { return action; }
+        }
+
         public void Dispose()
         {
-            for (int i = 0; i < _usegPool.Count; i++)
+            for (int i = 0; i < _pool.Count; i++)
             {
-                _usegPool[i].Dispose();
+                RedisClient client;
+                if (_pool.TryDequeue(out client))
+                    client.Dispose();
             }
         }
     }
