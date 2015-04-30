@@ -24,7 +24,7 @@
 ##使用连接池
 
 
-            PoolRedisClient prc = new PoolRedisClient(new PoolConfiguration();
+            PoolRedisClient prc = new PoolRedisClient(new PoolConfiguration());
     
             prc.Single.Set("key", "value");
 
