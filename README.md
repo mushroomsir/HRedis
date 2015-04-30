@@ -1,15 +1,5 @@
 
-
-##基本连接
-需要手动释放。
-
-            using (RedisClient client = new RedisClient("127.0.0.1", 6381))
-            {
-                Console.WriteLine(client.Set("key", "value"));
-                Console.WriteLine(client.Get("key"));
-            }
-
-配置说明：
+##配置说明：
 
             new RedisClient(new RedisConfiguration()
             {
@@ -20,19 +10,28 @@
                 SendTimeout = 0         //发送超时时间
             });
 
-
-##使用池命令
-命令使用结束后，会自动释放连接。
-
-            PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
-            prc.Cmd.Info();
+##基本连接
 
 
-##使用池获取连接
-需要手动释放。
-
-            PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
-            using (var client = prc.GetClient())
+            using (RedisClient client = new RedisClient("127.0.0.1", 6381))
             {
-                Console.WriteLine(client.Get("key"));
+                client.Set("key", "value");
+                client.Get("key");
             }
+
+
+
+##使用连接池
+
+
+            PoolRedisClient prc = new PoolRedisClient(new PoolConfiguration();
+    
+            prc.Single.Set("key", "value");
+
+            prc.Single.Get("key");
+
+    
+       
+           
+
+
