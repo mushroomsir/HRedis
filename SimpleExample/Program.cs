@@ -24,11 +24,11 @@ namespace SimpleExample
             //    SendTimeout = 0
             //});
 
-            PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
-            var info = prc.Single.Info;
+            //PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
+            //var info = prc.Single.Info;
 
 
-            //  Console.WriteLine((1 == get1() || 1 == get2()));
+            //Console.WriteLine((1 == get1() || 1 == get2()));
             //PoolRedisClient prc = new PoolRedisClient("127.0.0.1", 6381);
             //using (var client = prc.GetClient())
             //{
@@ -39,10 +39,17 @@ namespace SimpleExample
             //Console.ReadLine();
 
             RedisPubSub client = new RedisPubSub("127.0.0.1", 6381);
+            client.OnUnSubscribe += (obj) => {
+                Console.WriteLine();
+            };
+            client.OnMessage = (sender, arcgs) =>{
+                Console.WriteLine(arcgs);
+            };
+            client.OnError = (Exception) => { 
+                Console.WriteLine(Exception.Message);
+            };
+            client.Subscribe("bar");
 
-            client.OnMessage = (sender, arcgs) => Console.WriteLine(arcgs);
-            client.OnError = (Exception) => Console.WriteLine(Exception.Message);
-            client.Subscribe("123");
             Console.ReadLine();
         }
 
