@@ -33,6 +33,7 @@ namespace HRedis
         public PoolConfiguration()
         {
             MaxClients = 100;
+            MinClients = 10;
         }
     }
 }

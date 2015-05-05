@@ -73,7 +73,7 @@ namespace HRedis.UnitTest
                 rsc.OnMessage += OnMessage;
                 rsc.PSubscribe("*");
             }
-            Thread.Sleep(100000);
+            Thread.Sleep(5000);
         }
         private void OnMessage(object sender, object args)
         {

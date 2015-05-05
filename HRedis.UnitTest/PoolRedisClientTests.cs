@@ -46,9 +46,9 @@ namespace HRedis.UnitTest
 
                 Assert.AreEqual(info2.ToString(), "GetMaxClient_Test");
             }
-            prc.Dispose();
+           prc.Dispose();
         }
-
+       
         [TestMethod, TestCategory("poolRedisclient")]
         public void Pool_Single_Parallel()
         {
@@ -56,22 +56,24 @@ namespace HRedis.UnitTest
             {
                 Host = ip,
                 Port = port,
-                MaxClients = 10,
-                MinClients = 5,
+                MaxClients = 20,
+                MinClients = 10,
             });
             Parallel.For(0, 1000, new ParallelOptions() {MaxDegreeOfParallelism = 100}, (index, item) =>
             {
-                Thread.Sleep(100);
+               
                 prc.Single.Set("Parallel_PoolClient_Test" + index, "Parallel_PoolClient_Test");
 
                 var info2 = prc.Single.Get("Parallel_PoolClient_Test" + index);
 
                 Assert.AreEqual(info2.ToString(), "Parallel_PoolClient_Test");
             });
-            //prc.Dispose();
+            Thread.Sleep(5000);
+            prc.Dispose();
         }
+
         [TestMethod, TestCategory("poolRedisclient")]
-        public void Pool_Connect_TimeOut()
+        public void Pool_Send_Get_TimeOut()
         {
             PoolRedisClient prc = new PoolRedisClient(new PoolConfiguration()
             {
@@ -82,7 +84,7 @@ namespace HRedis.UnitTest
                 SendTimeout = 5,
                 ReceiveTimeout = 5
             });
-            Parallel.For(0, 1000, new ParallelOptions() { MaxDegreeOfParallelism = 100 }, (index, item) =>
+            var par = Parallel.For(0, 1000, new ParallelOptions() {MaxDegreeOfParallelism = 100}, (index, item) =>
             {
                 Thread.Sleep(100);
                 prc.Single.Set("Parallel_PoolClient_Test" + index, "Parallel_PoolClient_Test");
@@ -91,8 +93,10 @@ namespace HRedis.UnitTest
 
                 Assert.AreEqual(info2.ToString(), "Parallel_PoolClient_Test");
             });
-            //prc.Dispose();
+            Thread.Sleep(5000);
+            prc.Dispose();
         }
+
         [TestMethod, TestCategory("poolRedisclient")]
         public void Pool_Single_TimeOut()
         {
@@ -123,7 +127,7 @@ namespace HRedis.UnitTest
             {
                 var t = new Thread(() =>
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(100);
 
                     prc.Single.Set("Parallel_PoolClient_Test" + index, "Parallel_PoolClient_Test");
 

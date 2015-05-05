@@ -37,7 +37,7 @@ namespace HRedis
 
         public T Multi<T>(Func<RedisClient, T> func)
         {
-            _semaphore.Wait(60000);
+            _semaphore.Wait(30000);
 
             RedisClient client = null;
             try

@@ -15,7 +15,6 @@ namespace HRedis.UnitTest
             using (var rcClient = new RedisSentinel(ip, 20002))
             {
                 var info = rcClient.Ping();
-                Debug.Write(info);
             }
         }
     }

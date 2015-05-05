@@ -8,7 +8,7 @@ namespace HRedis.UnitTest
     public  class MockData
     {
         public static readonly string MasterIp = "127.0.0.1";
-        public static readonly int MasterPort = 6381;
+        public static readonly int MasterPort = 6379;
 
         public static readonly string SlaveIp = "127.0.0.1";
         public static readonly int SlavePort = 6381;

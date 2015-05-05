@@ -30,7 +30,7 @@ namespace HRedis.UnitTest
             {
                 var result = rsc.Ping();
 
-                Assert.AreEqual("PONG", result);
+                Assert.IsTrue(result);
             }
         }
 
@@ -45,7 +45,19 @@ namespace HRedis.UnitTest
             }))
             {
                 var info = rcClient.Send(RedisCommand.INFO);
-                Debug.Write(info.ToString());
+            }
+        }
+        [TestMethod]
+        public void Maxclients()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                RedisSentinel rsc = new RedisSentinel(ip, port);
+
+                var result = rsc.Ping();
+
+                Assert.IsTrue(result);
+
             }
         }
     }

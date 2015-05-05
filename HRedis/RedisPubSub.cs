@@ -31,6 +31,8 @@ namespace HRedis
             {
                 Host = ip,
                 Port = port,
+                SendTimeout = 0,
+                ReceiveTimeout = 0
             })
         {
 

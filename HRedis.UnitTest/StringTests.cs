@@ -30,6 +30,7 @@ namespace HRedis.UnitTest
         {
             using (var rcClient = new RedisClient(ip, port))
             {
+                rcClient.Set("Set_Get_key", "Set_Get_key");
                 var reply = rcClient.DelKey("Set_Get_key");
 
                 Assert.AreEqual(reply, 1);
@@ -43,17 +44,17 @@ namespace HRedis.UnitTest
             var key = "Set_key_Expire";
             using (var rcClient = new RedisClient(ip, port))
             {
-                rcClient.Set(key, key, 10);
+                rcClient.Set(key, key, 5);
 
                 var info1 = rcClient.Get(key);
 
                 Assert.AreEqual(info1.ToString(), key);
 
-                Thread.Sleep(11000);
+                Thread.Sleep(6000);
+
                 var info2 = rcClient.Get(key);
 
-                Assert.AreEqual(info2, null);
-
+                Assert.AreEqual(info2, "");
             }
         }
     }

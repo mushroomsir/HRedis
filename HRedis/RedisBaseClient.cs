@@ -216,9 +216,10 @@ namespace HRedis
             return reply;
         }
 
-        public string Execute(RedisCommand rc, params string[] args)
+        public object Execute(RedisCommand rc, params string[] args)
         {
-            return Execute(() => Send(rc, args), Continuation).ToString();
+            var reply = Execute(() => Send(rc, args), Continuation);
+            return reply;
         }
         public virtual void Dispose()
         {

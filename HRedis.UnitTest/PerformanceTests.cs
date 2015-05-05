@@ -14,11 +14,15 @@ namespace HRedis.UnitTest
         {
             using (var rcClient = new RedisClient(ip, port))
             {
-                for (int i = 0; i < 10000; i++)
+                for (int i = 0; i < 1000; i++)
                 {
-                    rcClient.Set("Continuation_Set_Get" + i, i.ToString(), 10);
-                    rcClient.Get("Continuation_Set_Get" + i);
+                    
+                    var reply1=rcClient.Set("Continuation_Set_Get" + i, i.ToString(), 10000);
+                    Assert.IsTrue(reply1);
+                    var reply=rcClient.Get("Continuation_Set_Get" + i);
                     rcClient.Send(RedisCommand.INFO);
+                    Assert.AreEqual(i.ToString(), reply);
+
                 }
             }
         }
@@ -26,7 +30,7 @@ namespace HRedis.UnitTest
         [TestMethod, TestCategory("Performance")]
         public void Continuation_Set_Get_ByDifferentClient()
         {
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 using (var rcClient = new RedisClient(ip, port))
                 {

@@ -14,6 +14,11 @@ namespace HRedis
             _client = client;
         }
 
+        public bool Set(string key, string value)
+        {
+            return _client.Multi((client) => client.Set(key, value));
+        }
+
         public bool Set<T>(string key, T value)
         {
             return _client.Multi((client) => client.Set<T>(key, value));
@@ -26,7 +31,7 @@ namespace HRedis
 
         public string Get(string key)
         {
-            return _client.Multi((client) => client.Get<string>(key));
+            return _client.Multi((client) => client.Get(key));
         }
 
         public Dictionary<string, string> Info
