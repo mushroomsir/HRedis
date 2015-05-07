@@ -29,7 +29,12 @@
             prc.Single.Set("key", "value");
 
             prc.Single.Get("key");
-
+###or
+            prc.Multi(client =>
+            {
+                client.Set("key", "value");
+                return client.Get("key");
+            });
     
        
            
