@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -7,24 +8,21 @@ namespace HRedis
 {
     public class PoolRedisClient : IDisposable
     {
-        private PoolConfiguration _configuration;
+        private PoolConfig _configuration;
         private readonly ConcurrentQueue<RedisClient> _pool;
-
-        private Actions action;
 
         private SemaphoreSlim _semaphore;
 
-        public PoolRedisClient(PoolConfiguration configuration)
+        public PoolRedisClient(PoolConfig configuration)
         {
             _configuration = configuration;
             _pool = new ConcurrentQueue<RedisClient>();
             _semaphore = new SemaphoreSlim(configuration.MinClients, configuration.MaxClients);
 
-            action = new Actions(this);
         }
 
         public PoolRedisClient(string ip, int port)
-            : this(new PoolConfiguration()
+            : this(new PoolConfig()
             {
                 Host = ip,
                 Port = port,
@@ -66,9 +64,14 @@ namespace HRedis
             }
         }
 
-        public Actions Single
+        public bool Set(string key, string value)
         {
-            get { return action; }
+            return this.Multi((client) => client.Set(key, value));
+        }
+
+        public string Get(string key)
+        {
+            return this.Multi((client) => client.Get(key));
         }
 
         public void Dispose()

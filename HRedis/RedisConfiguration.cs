@@ -2,7 +2,7 @@
 
 namespace HRedis
 {
-    public class RedisConfiguration
+    public class RedisConfig
     {
         public string Host { get; set; }
         public int Port { get; set; }
@@ -17,7 +17,7 @@ namespace HRedis
 
         public string PassWord { get; set; }
         public IJsonConvert JsonConvert { get; set; }
-        public RedisConfiguration()
+        public RedisConfig()
         {
             Host = "127.0.0.1";
             Port = 6379;
@@ -26,14 +26,19 @@ namespace HRedis
         }
     }
 
-    public class PoolConfiguration : RedisConfiguration
+    public class PoolConfig : RedisConfig
     {
         public int MaxClients { get; set; }
         public int MinClients { get; set; }
-        public PoolConfiguration()
+        public PoolConfig()
         {
             MaxClients = 100;
             MinClients = 10;
         }
+    }
+
+    public class ServerConfig : PoolConfig
+    {
+        public bool IsMaster { get; set; }
     }
 }

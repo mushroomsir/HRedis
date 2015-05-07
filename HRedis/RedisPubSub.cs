@@ -18,16 +18,16 @@ namespace HRedis
 
         private Thread thread;
 
-        public RedisConfiguration Configuration;
+        public RedisConfig Configuration;
 
-        public RedisPubSub(RedisConfiguration config)
+        public RedisPubSub(RedisConfig config)
         {
             Configuration = config;
             client = new RedisBaseClient(config);
         }
 
         public RedisPubSub(string ip, int port)
-            : this(new RedisConfiguration()
+            : this(new RedisConfig()
             {
                 Host = ip,
                 Port = port,

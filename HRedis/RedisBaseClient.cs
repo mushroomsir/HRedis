@@ -8,9 +8,9 @@ namespace HRedis
     public partial class RedisBaseClient : IDisposable
     {
         private Socket socket;
-        public readonly RedisConfiguration Configuration;
+        public readonly RedisConfig Configuration;
 
-        public RedisBaseClient(RedisConfiguration config)
+        public RedisBaseClient(RedisConfig config)
         {
             Configuration = config;
         }
@@ -53,6 +53,12 @@ namespace HRedis
 
         }
 
+        protected void SendAsync()
+        {
+            var temp = new SocketAsyncEventArgs();
+            socket.SendAsync(temp);
+        }
+
         private void Reconnect()
         {
             Close();
@@ -68,22 +74,29 @@ namespace HRedis
 
             if (Configuration.ReceiveTimeout > 0)
                 socket.ReceiveTimeout = Configuration.ReceiveTimeout * 1000;
-
         }
 
         private void Close()
         {
             var status = socket.IsConnected();
-            if (status)
-                Send(RedisCommand.QUIT);
+            try
+            {
+                if (status)
+                    Send(RedisCommand.QUIT);
+            }
+            catch (Exception exception)
+            {
+                Debug.Write(exception.Message + exception.StackTrace);
+            }
+        
             try
             {
                 if (status)
                     socket.Shutdown(SocketShutdown.Both);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Debug.Write(ex.Message + ex.StackTrace);
+                Debug.Write(exception.Message + exception.StackTrace);
             }
             try
             {
@@ -91,9 +104,9 @@ namespace HRedis
                     socket.Close();
                 socket = null;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Debug.Write(ex.Message + ex.StackTrace);
+                Debug.Write(exception.Message + exception.StackTrace);
             }
         }
 

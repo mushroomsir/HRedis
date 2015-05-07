@@ -7,13 +7,13 @@ namespace HRedis
     {
         private RedisClient client;
 
-        public RedisSentinel(RedisConfiguration config)
+        public RedisSentinel(RedisConfig config)
         {
             client = new RedisClient(config);
         }
 
         public RedisSentinel(string ip, int port)
-            : this(new RedisConfiguration()
+            : this(new RedisConfig()
             {
                 Host = ip,
                 Port = port,

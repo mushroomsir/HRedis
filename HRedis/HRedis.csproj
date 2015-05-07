@@ -40,8 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions.cs" />
     <Compile Include="IJsonConvert.cs" />
+    <Compile Include="PoolManager.cs" />
     <Compile Include="RedisClient.Connection.cs" />
     <Compile Include="RedisConfiguration.cs" />
     <Compile Include="PoolRedisClient.cs" />

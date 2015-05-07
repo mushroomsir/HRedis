@@ -15,7 +15,7 @@ namespace SimpleExample
             //    Console.WriteLine(client.Get("key"));
             //}
 
-            //new RedisClient(new RedisConfiguration()
+            //new RedisClient(new RedisConfig()
             //{
             //    Host = "127.0.0.1",
             //    Port = 6379,
@@ -39,17 +39,10 @@ namespace SimpleExample
             //Console.ReadLine();
 
             RedisPubSub client = new RedisPubSub("127.0.0.1", 6381);
-            client.OnUnSubscribe += (obj) => {
-                Console.WriteLine();
-            };
-            client.OnMessage = (sender, arcgs) =>{
-                Console.WriteLine(arcgs);
-            };
-            client.OnError = (Exception) => { 
-                Console.WriteLine(Exception.Message);
-            };
+            client.OnUnSubscribe += (obj) => Console.WriteLine();
+            client.OnMessage = (sender, arcgs) => Console.WriteLine(arcgs);
+            client.OnError = (Exception) => Console.WriteLine(Exception.Message);
             client.Subscribe("bar");
-
             Console.ReadLine();
         }
 

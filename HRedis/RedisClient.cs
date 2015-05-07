@@ -6,16 +6,16 @@ namespace HRedis
     public sealed partial class RedisClient : RedisBaseClient
     {
         public IJsonConvert JsonConvert { get; set; }
-        public RedisClient(RedisConfiguration configuration)
+        public RedisClient(RedisConfig configuration)
             : base(configuration)
         {
             JsonConvert = Configuration.JsonConvert ?? new JsonConvert();
             _configuration = configuration;
         }
-        private RedisConfiguration _configuration;
+        private RedisConfig _configuration;
 
         public RedisClient(string ip, int port)
-            : this(new RedisConfiguration()
+            : this(new RedisConfig()
             {
 
                 Host = ip,
